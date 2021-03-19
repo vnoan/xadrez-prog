@@ -5,7 +5,32 @@
 #define AZUL "\x1B[34m"
 #define RESET "\x1B[0m"
 
-void peao_preto(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, int coluna)
+typedef struct Peca{
+    int codigo;
+    int linha,coluna;
+    int ataques;
+    struct Peca *prox,*ant;
+} Peca;
+
+typedef struct Posicao{
+    int qtdBrancas;
+    struct Peca *brancas;
+    int qtdPretas;
+    struct Peca *pretas;
+    int jogVez;
+    struct Peca *tab[8][8];
+} Posicao;
+
+typedef struct
+{
+    int linhaDe, colunaDe, linhaPara, colunaPara;
+} Jogada;
+
+int tabuleiro[8][8];
+int tabuleiro_temporario[8][8];
+Posicao *posAtual;
+
+void peao_preto(int linha, int coluna)
 {
 	if ((linha - 1) >= 0 && tabuleiro[linha - 1][coluna] == 0)
 	{
@@ -25,7 +50,7 @@ void peao_preto(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, 
 	}
 }
 
-void cavalo_preto(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, int coluna)
+void cavalo_preto(int linha, int coluna)
 {
 	if ((linha + 2) < 8 && (coluna + 1) < 8 && tabuleiro[linha + 2][coluna + 1] == 0)
 	{
@@ -93,7 +118,7 @@ void cavalo_preto(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha
 	}
 }
 
-void bispo_preto(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, int coluna)
+void bispo_preto(int linha, int coluna)
 {
 	int k = 1;
 	while ((linha + k) < 8 && (coluna + k) < 8 && tabuleiro[linha + k][coluna + k] == 0)
@@ -137,7 +162,7 @@ void bispo_preto(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha,
 	}
 }
 
-void torre_preta(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, int coluna)
+void torre_preta(int linha, int coluna)
 {
 	int k = 1;
 	while ((linha + k) < 8 && tabuleiro[linha + k][coluna] == 0)
@@ -181,13 +206,13 @@ void torre_preta(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha,
 	}
 }
 
-void rainha_preta(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, int coluna)
+void rainha_preta(int linha, int coluna)
 {
-	bispo_preto(tabuleiro, tabuleiro_temporario, linha, coluna);
-	torre_preta(tabuleiro, tabuleiro_temporario, linha, coluna);
+	bispo_preto(linha, coluna);
+	torre_preta(linha, coluna);
 }
 
-void rei_preto(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, int coluna)
+void rei_preto(int linha, int coluna)
 {
 	if ((linha + 1) < 8 && tabuleiro[linha + 1][coluna] == 0)
 	{
@@ -255,7 +280,7 @@ void rei_preto(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, i
 	}
 }
 
-void peao_branco(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, int coluna)
+void peao_branco(int linha, int coluna)
 {
 	if ((linha + 1) < 8 && tabuleiro[linha + 1][coluna] == 0)
 	{
@@ -275,7 +300,7 @@ void peao_branco(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha,
 	}
 }
 
-void cavalo_branco(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, int coluna)
+void cavalo_branco(int linha, int coluna)
 {
 	if ((linha + 2) < 8 && (coluna + 1) < 8 && tabuleiro[linha + 2][coluna + 1] == 0)
 	{
@@ -343,7 +368,7 @@ void cavalo_branco(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linh
 	}
 }
 
-void bispo_branco(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, int coluna)
+void bispo_branco(int linha, int coluna)
 {
 	int k = 1;
 	while ((linha + k) < 8 && (coluna + k) < 8 && tabuleiro[linha + k][coluna + k] == 0)
@@ -387,7 +412,7 @@ void bispo_branco(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha
 	}
 }
 
-void torre_branca(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, int coluna)
+void torre_branca(int linha, int coluna)
 {
 	int k = 1;
 	while ((linha + k) < 8 && tabuleiro[linha + k][coluna] == 0)
@@ -431,13 +456,13 @@ void torre_branca(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha
 	}
 }
 
-void rainha_branca(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, int coluna)
+void rainha_branca(int linha, int coluna)
 {
-	torre_branca(tabuleiro, tabuleiro_temporario, linha, coluna);
-	bispo_branco(tabuleiro, tabuleiro_temporario, linha, coluna);
+	torre_branca(linha, coluna);
+	bispo_branco(linha, coluna);
 }
 
-void rei_branco(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, int coluna)
+void rei_branco(int linha, int coluna)
 {
 	if ((linha + 1) < 8 && tabuleiro[linha + 1][coluna] == 0)
 	{
@@ -505,7 +530,7 @@ void rei_branco(int tabuleiro[8][8], int tabuleiro_temporario[8][8], int linha, 
 	}
 }
 
-void IniciaTabuleiro(int tabuleiro[8][8])
+void IniciaTabuleiro()
 {
 	for (int i = 0; i < 8; i++)
 	{
@@ -548,7 +573,7 @@ void IniciaTabuleiro(int tabuleiro[8][8])
 	tabuleiro[0][7] = 4;
 }
 
-void mostra_jogo(int tabuleiro[8][8])
+void mostra_jogo()
 {
 	printf("\n\n\n\n\n");
 	for (int i = 7; i > -1; i--)
@@ -589,49 +614,47 @@ void mostra_jogo(int tabuleiro[8][8])
 	printf("\t\t\t\t\t\t    0  1  2  3  4  5  6  7\n");
 }
 
-int possibilidades(int linha, int coluna, int elemento, int tabuleiro[8][8], int tabuleiro_temporario[8][8])
+int possibilidades(int linha, int coluna, int elemento)
 {
-
 	switch (elemento)
 	{
 	case 1:
-		peao_branco(tabuleiro, tabuleiro_temporario, linha, coluna);
+		peao_branco(linha, coluna);
 		break;
 	case 2:
-		cavalo_branco(tabuleiro, tabuleiro_temporario, linha, coluna);
+		cavalo_branco(linha, coluna);
 		break;
 	case 3:
-		bispo_branco(tabuleiro, tabuleiro_temporario, linha, coluna);
+		bispo_branco(linha, coluna);
 		break;
 	case 4:
-		torre_branca(tabuleiro, tabuleiro_temporario, linha, coluna);
+		torre_branca(linha, coluna);
 		break;
 	case 5:
-		rainha_branca(tabuleiro, tabuleiro_temporario, linha, coluna);
+		rainha_branca(linha, coluna);
 		break;
 	case 6:
-		rei_branco(tabuleiro, tabuleiro_temporario, linha, coluna);
+		rei_branco(linha, coluna);
 		break;
 	case -1:
-		peao_preto(tabuleiro, tabuleiro_temporario, linha, coluna);
+		peao_preto(linha, coluna);
 		break;
 	case -2:
-		cavalo_preto(tabuleiro, tabuleiro_temporario, linha, coluna);
+		cavalo_preto(linha, coluna);
 		break;
 	case -3:
-		bispo_preto(tabuleiro, tabuleiro_temporario, linha, coluna);
+		bispo_preto(linha, coluna);
 		break;
 	case -4:
-		torre_preta(tabuleiro, tabuleiro_temporario, linha, coluna);
+		torre_preta(linha, coluna);
 		break;
 	case -5:
-		rainha_preta(tabuleiro, tabuleiro_temporario, linha, coluna);
+		rainha_preta(linha, coluna);
 		break;
 	case -6:
-		rei_preto(tabuleiro, tabuleiro_temporario, linha, coluna);
+		rei_preto(linha, coluna);
 		break;
 	}
-
 	int verifica = 0;
 	for (int i = 0; i < 8; i++)
 	{
@@ -645,12 +668,12 @@ int possibilidades(int linha, int coluna, int elemento, int tabuleiro[8][8], int
 		}
 	}
 	system("cls");
-	mostra_jogo(tabuleiro_temporario);
+	mostra_jogo();
 
 	return verifica;
 }
 
-int mover(int linhaDe, int colunaDe, int linhaPara, int colunaPara, int tabuleiro[8][8])
+int mover(int linhaDe, int colunaDe, int linhaPara, int colunaPara)
 {
 	int fim = 0;
 	if (tabuleiro[linhaPara][colunaPara] == 6)
@@ -666,23 +689,19 @@ int mover(int linhaDe, int colunaDe, int linhaPara, int colunaPara, int tabuleir
 	return fim;
 }
 
-void jogo(int tabuleiro[8][8])
+void jogo()
 {
-	int tabuleiro_temporario[8][8];
 	setlocale(LC_ALL, "Portuguese");
-	typedef struct
-	{
-		int linhaDe, colunaDe, linhaPara, colunaPara;
-	} jogada;
-	mostra_jogo(tabuleiro);
-	jogada player1;
+
+	mostra_jogo();
+	Jogada player1;
 	printf("\nQual peça você quer mover?(Informe a linha e em seguida a  coluna):\n");
 	scanf("%d", &player1.linhaDe);
 	fflush(stdin);
 	scanf("%d", &player1.colunaDe);
 	while ((player1.linhaDe < 0 || player1.linhaDe > 7 ||
-					player1.colunaDe < 0 || player1.colunaDe > 7) ||
-				 tabuleiro[player1.linhaDe][player1.colunaDe] == 0)
+            player1.colunaDe < 0 || player1.colunaDe > 7) ||
+            tabuleiro[player1.linhaDe][player1.colunaDe] == 0)
 	{
 		printf("Digite outra posição:\n");
 		fflush(stdin);
@@ -696,10 +715,10 @@ void jogo(int tabuleiro[8][8])
 			tabuleiro_temporario[i][j] = tabuleiro[i][j];
 		}
 	}
-	int resposta = possibilidades(player1.linhaDe, player1.colunaDe, tabuleiro[player1.linhaDe][player1.colunaDe], tabuleiro, tabuleiro_temporario);
+	int resposta = possibilidades(player1.linhaDe, player1.colunaDe, tabuleiro[player1.linhaDe][player1.colunaDe]);
 	if (resposta == 1)
 	{
-		printf("Suas possibilidades estão marcadas no tabuleiro, escolha uma delas(Informe a linha e em seguida a  coluna):\n");
+		printf("Suas possibilidades estão marcadas no escolha uma delas(Informe a linha e em seguida a  coluna):\n");
 
 		scanf("%d", &player1.linhaPara);
 
@@ -718,19 +737,19 @@ void jogo(int tabuleiro[8][8])
 			scanf("%d", &player1.colunaPara);
 		}
 		system("cls");
-		int fim = mover(player1.linhaDe, player1.colunaDe, player1.linhaPara, player1.colunaPara, tabuleiro);
+		int fim = mover(player1.linhaDe, player1.colunaDe, player1.linhaPara, player1.colunaPara);
 		if (fim == 0)
 		{
-			jogo(tabuleiro);
+			jogo();
 		}
 		else if (fim == -1)
 		{
-			mostra_jogo(tabuleiro);
+			mostra_jogo();
 			printf("\nFim de Jogo\nVencedor:Player2");
 		}
 		else if (fim == 1)
 		{
-			mostra_jogo(tabuleiro);
+			mostra_jogo();
 			printf("\nFim de Jogo\nVencedor:Player1");
 		}
 	}
@@ -738,14 +757,13 @@ void jogo(int tabuleiro[8][8])
 	{
 		system("cls");
 		printf("Não há jogadas possíveis para esta peça.\n");
-		jogo(tabuleiro);
+		jogo();
 	}
 }
 
 int main()
 {
-	int tabuleiro[8][8];
-	IniciaTabuleiro(tabuleiro);
-	jogo(tabuleiro);
+	IniciaTabuleiro();
+	jogo();
 	return 0;
 }
