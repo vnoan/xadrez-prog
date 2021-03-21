@@ -114,7 +114,98 @@ struct Jogada* peao(struct Jogada* movimentos, struct Peca* p, struct Peca* tabu
 	return movimentos;
 }
 
+struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* tabuleiro[8][8]){
+  if(p->linha<6){
+   if(p->coluna<7){
+     if(tabuleiro[p->linha+2][p->coluna+1]!=NULL && tabuleiro[p->linha+2][p->coluna+1]->codigo*p->codigo<0){
+       tabuleiro[p->linha+2][p->coluna+1]->ataques++;
+       movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+2, p->coluna+1);
+     }
+     else if(tabuleiro[p->linha+2][p->coluna+1]==NULL){
+       movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+2, p->coluna+1);
+     }
+    }
+    if(p->coluna>0){
+      if(tabuleiro[p->linha+2][p->coluna-1]!=NULL && tabuleiro[p->linha+2][p->coluna-1]->codigo*p->codigo<0){
+        tabuleiro[p->linha+2][p->coluna+1]->ataques++;
+        movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+2, p->coluna-1);
+      } else if(tabuleiro[p->linha+2][p->coluna-1]==NULL){
+        movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+2, p->coluna-1);
+      }
+    }
+    }
+    if(p->linha<7){
+      if(p->coluna<6){
+        if(tabuleiro[p->linha+1][p->coluna+2]!=NULL && tabuleiro[p->linha+1][p->coluna+2]->codigo*p->codigo<0){
+          tabuleiro[p->linha+1][p->coluna+2]->ataques++;
+          movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+1, p->coluna+2);
+        } else if(tabuleiro[p->linha+1][p->coluna+2]==NULL){
+          movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+1, p->coluna+2);
+        }
+      }
+      if(p->coluna>1){
+        if(tabuleiro[p->linha+1][p->coluna-2]!=NULL && tabuleiro[p->linha+1][p->coluna-2]->codigo*p->codigo<0){
+          tabuleiro[p->linha+1][p->coluna-2]->ataques++;
+          movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+1, p->coluna-2);
+        } else if(tabuleiro[p->linha+1][p->coluna-2]==NULL){
+          movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+1, p->coluna-2);
+        }
+      }
+    }
+    if(p->linha>1){
+      if(p->coluna<7){
+        if(tabuleiro[p->linha-2][p->coluna+1]!=NULL && tabuleiro[p->linha-2][p->coluna+1]->codigo*p->codigo<0){
+          tabuleiro[p->linha-2][p->coluna+1]->ataques++;
+          movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-2, p->coluna+1);
+        } else if(tabuleiro[p->linha-2][p->coluna+1]==NULL){
+          movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-2, p->coluna+1);
+        }
+      }
+      if(p->coluna>0){
+        if(tabuleiro[p->linha-2][p->coluna-1]!=NULL && tabuleiro[p->linha-2][p->coluna-1]->codigo*p->codigo<0){
+          tabuleiro[p->linha-2][p->coluna-1]->ataques++;
+          movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-2, p->coluna-1);
+        } else if(tabuleiro[p->linha-2][p->coluna-1]==NULL){
+          movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-2, p->coluna-1);
+        }
+      }
+    }
+    if(p->linha>0){
+      if(p->coluna<6){
+        if(tabuleiro[p->linha-1][p->coluna+2]!=NULL && tabuleiro[p->linha-1][p->coluna+2]->codigo*p->codigo<0){
+          tabuleiro[p->linha-1][p->coluna+2]->ataques++;
+          movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-1, p->coluna+2);
+        }else if(tabuleiro[p->linha-2][p->coluna-1]==NULL){
+          movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-1, p->coluna+2);
+      }
+    }
+    if(p->coluna>1){
+      if(tabuleiro[p->linha-1][p->coluna-2]!=NULL && tabuleiro[p->linha-1][p->coluna-2]->codigo*p->codigo<0){
+        tabuleiro[p->linha-1][p->coluna-2]->ataques++;
+          movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-1, p->coluna-2);
+      } else if(tabuleiro[p->linha-1][p->coluna-2]==NULL){
+        movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-1, p->coluna-2);
+      }
+    }
+}
+return movimentos;
+}
 
+void AjustaCor(int peca){
+    switch(abs(peca)){
+    case 1: printf("\033[0;36m");break;
+    case 2: printf("\033[1;33m");break;
+    case 3: printf("\033[0;35m");break;
+    case 4: printf("\033[0;32m");break;
+    case 5: printf("\033[0;34m");break;
+    case 6: printf("\033[1;31m");break;
+    }
+}
+    
+void ResetCor(){
+    printf("\033[0m");
+}
+    
 void Desenha(struct Posicao PosAtual)
 {
 	printf("\n\n\n\n\n");
@@ -136,7 +227,10 @@ void Desenha(struct Posicao PosAtual)
 			{
 				printf("| ");
 			}
+			AjustaCor(PosAtual.tab[i][j]->codigo);
 				printf("%d", PosAtual.tab[i][j]->codigo);
+				ResetCor();
+				
 			}
 			 
 		}
@@ -157,7 +251,7 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual){
 		aux->ataques=0;
 		aux=aux->prox;
 	}while(aux!=PosAtual.pretas);
-if(PosAtual.jogVez=1){
+if(PosAtual.jogVez==1){
 	aux=PosAtual.brancas;
 } else{
 	aux=PosAtual.pretas;
@@ -187,6 +281,8 @@ do{
 		}
 		aux=aux->prox;
 	}while(aux->prox!=PosAtual.brancas);
+
+  return movimentos;
 }
 
 int main(){
@@ -195,8 +291,3 @@ int main(){
 
 return 0;
 }
-
-
-		
-	
-    
