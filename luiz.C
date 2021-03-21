@@ -10,6 +10,20 @@ struct Peca{
 	int ataques;
 	struct Peca *prox, *ant; 
 };
+
+struct Posicao{
+	int qtdBrancas;
+	struct Peca *brancas;
+    int qtdPretas;
+    struct Peca *pretas;
+    int jogVez;
+    struct Peca *tab[8][8];
+};
+struct  Jogada
+{
+    int linhaDe, colunaDe, linhaPara, colunaPara;
+    struct Jogada *prox, *ant;
+};
 struct Peca* InsereInicio(struct Peca* sentinela, int codigo, int linha, int coluna, int ataques){
 	struct Peca* novo= (struct Peca* )malloc(sizeof(struct Peca));
 	novo->linha=linha;
@@ -28,19 +42,6 @@ struct Peca* InsereInicio(struct Peca* sentinela, int codigo, int linha, int col
 			sentinela=novo;
 			return sentinela;
 }
-struct Posicao{
-	int qtdBrancas;
-	struct Peca *brancas;
-    int qtdPretas;
-    struct Peca *pretas;
-    int jogVez;
-    struct Peca *tab[8][8];
-};
-struct  Jogada
-{
-    int linhaDe, colunaDe, linhaPara, colunaPara;
-    struct Jogada *prox, *ant;
-};
 struct Jogada* InsereIniciojogada(struct Jogada* sentinela, int linhaDe, int colunaDe, int linhaPara, int colunaPara){
 	struct Jogada* novo= (struct Jogada* )malloc(sizeof(struct Jogada));
 	novo->linhaDe=linhaDe;
@@ -83,7 +84,7 @@ struct Posicao IniciaTabuleiro(){
 	tabuleiro.tab[0][5]=tabuleiro.brancas=InsereInicio(tabuleiro.brancas, 3, 0, 5, 0);
 	tabuleiro.tab[0][4]=tabuleiro.brancas=InsereInicio(tabuleiro.brancas, 6, 0, 4, 0);
 	tabuleiro.tab[0][3]=tabuleiro.brancas=InsereInicio(tabuleiro.brancas, 5, 0, 3, 0);
-	
+
 	tabuleiro.tab[7][0]=tabuleiro.pretas=InsereInicio(tabuleiro.pretas, -4, 7, 0, 0);
 	tabuleiro.tab[7][7]=tabuleiro.pretas=InsereInicio(tabuleiro.pretas, -4, 7, 7, 0);
 	tabuleiro.tab[7][1]=tabuleiro.pretas=InsereInicio(tabuleiro.pretas, -2, 7, 1, 0);
@@ -93,8 +94,38 @@ struct Posicao IniciaTabuleiro(){
 	tabuleiro.tab[7][4]=tabuleiro.pretas=InsereInicio(tabuleiro.pretas, -6, 7, 4, 0);
 	tabuleiro.tab[7][3]=tabuleiro.pretas=InsereInicio(tabuleiro.pretas, -5, 7, 3, 0);
 	return tabuleiro;
-	
-};
+
+}
+void ResetCor(){
+    printf("\033[0m");
+}
+
+void AjustaCor(int peca){
+    switch(abs(peca)){
+    case 1: printf("\033[0;36m");break;
+    case 2: printf("\033[1;33m");break;
+    case 3: printf("\033[0;35m");break;
+    case 4: printf("\033[0;32m");break;
+    case 5: printf("\033[0;34m");break;
+    case 6: printf("\033[1;31m");break;
+    }
+}
+struct Jogada* peao(struct Jogada* movimentos, struct Peca* p, struct Peca* tabuleiro[8][8]){
+	if((p->linha+p->codigo)>=0 && (p->linha+p->codigo)<=7){
+		if(tabuleiro[p->linha+p->codigo][p->coluna]==NULL){
+			movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), p->coluna);
+		}
+		if(tabuleiro[p->linha+p->codigo][p->coluna-1]!=NULL && p->coluna>0 && (tabuleiro[p->linha+p->codigo][p->coluna-1]->codigo*p->codigo)<0){
+			movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), (p->coluna-1));
+		}
+		if(tabuleiro[p->linha+p->codigo][p->coluna-1]!=NULL && p->coluna<7 && (tabuleiro[p->linha+p->codigo][p->coluna+1]->codigo*p->codigo)<0){
+			movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), (p->coluna+1));
+		}
+	}
+	return movimentos;
+}
+
+
 void Desenha(struct Posicao PosAtual)
 {
 	printf("\n\n\n\n\n");
@@ -107,35 +138,25 @@ void Desenha(struct Posicao PosAtual)
 			if (PosAtual.tab[i][j] == NULL)
 			{
 				printf("|  ");
-			}
-			else if (PosAtual.tab[i][j]!=NULL && PosAtual.tab[i][j]->codigo < 0 && PosAtual.tab[i][j]->codigo>-10)
-			{
-				printf("|%d", PosAtual.tab[i][j]->codigo);
-			}
-			else if (PosAtual.tab[i][j]!=NULL && PosAtual.tab[i][j]->codigo > 0 && PosAtual.tab[i][j]->codigo < 10)
-			{
-				printf("| %d", PosAtual.tab[i][j]->codigo);
-			}
-			else if (PosAtual.tab[i][j]!=NULL && PosAtual.tab[i][j]->codigo > 15 && PosAtual.tab[i][j]->codigo < 30)
+			} else{
+				if (PosAtual.tab[i][j]!=NULL && PosAtual.tab[i][j]->codigo < 0)
 			{
 				printf("|");
-				printf(AZUL " O" RESET);
 			}
-			else if (PosAtual.tab[i][j]!=NULL && PosAtual.tab[i][j]->codigo > 40 && (PosAtual.tab[i][j]->codigo - 50) < 0)
+			else if (PosAtual.tab[i][j]!=NULL && PosAtual.tab[i][j]->codigo > 0)
 			{
-				printf("|");
-				printf(ROXO "%d" RESET, (PosAtual.tab[i][j]->codigo - 50));
+				printf("| ");
 			}
-			else if (PosAtual.tab[i][j]!=NULL && PosAtual.tab[i][j]->codigo > 40 && (PosAtual.tab[i][j]->codigo - 50) > 0)
-			{
-				printf("|");
-				printf(ROXO " %d" RESET, (PosAtual.tab[i][j]->codigo - 50));
+				printf("%d", PosAtual.tab[i][j]->codigo);
 			}
+			 
 		}
 		printf("|\n\t\t\t\t\t\t  -------------------------\n");
 	}
 	printf("\t\t\t\t\t\t    0  1  2  3  4  5  6  7\n");
 }
+
+
 struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual){
 	struct Peca* aux=PosAtual.brancas;
 	do{
@@ -147,16 +168,45 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual){
 		aux->ataques=0;
 		aux=aux->prox;
 	}while(aux!=PosAtual.pretas);
-	
-	
+if(PosAtual.jogVez=1){
+	aux=PosAtual.brancas;
+} else{
+	aux=PosAtual.pretas;
 }
-	
+struct Jogada* movimentos=NULL;
+do{
+		switch (abs(aux->codigo)){
+			case 1 :
+			movimentos=peao(movimentos, aux, PosAtual.tab);
+			break;
+			/*case: 2 case: -2
+			movimentos=cavalo(movimentos, aux, PosAtual.tab);
+			break;
+			case: 3 case: -3
+			movimentos=bispo(movimentos, aux, PosAtual.tab);
+			break;
+			case: 4 case: -4
+			movimentos=torre(movimentos, aux, PosAtual.tab);
+			break;
+			case: 5 case: -5
+			movimentos=torre(movimentos, aux, PosAtual.tab);
+			movimentos=bispo(movimentos, aux, PosAtual.tab);
+			break;
+			case:6 case: -6
+			movimentos=rei(movimentos, aux, PosAtual.tab); 
+			break;*/
+		}
+		aux=aux->prox;
+	}while(aux->prox!=PosAtual.brancas);
+}
+
 int main(){
 	struct Posicao tabuleiro=IniciaTabuleiro();
 	Desenha(tabuleiro);
-	
+
 return 0;
 }
+
 		
 	
     
