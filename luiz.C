@@ -96,20 +96,7 @@ struct Posicao IniciaTabuleiro(){
 	return tabuleiro;
 
 }
-void ResetCor(){
-    printf("\033[0m");
-}
 
-void AjustaCor(int peca){
-    switch(abs(peca)){
-    case 1: printf("\033[0;36m");break;
-    case 2: printf("\033[1;33m");break;
-    case 3: printf("\033[0;35m");break;
-    case 4: printf("\033[0;32m");break;
-    case 5: printf("\033[0;34m");break;
-    case 6: printf("\033[1;31m");break;
-    }
-}
 struct Jogada* peao(struct Jogada* movimentos, struct Peca* p, struct Peca* tabuleiro[8][8]){
 	if((p->linha+p->codigo)>=0 && (p->linha+p->codigo)<=7){
 		if(tabuleiro[p->linha+p->codigo][p->coluna]==NULL){
@@ -117,9 +104,11 @@ struct Jogada* peao(struct Jogada* movimentos, struct Peca* p, struct Peca* tabu
 		}
 		if(tabuleiro[p->linha+p->codigo][p->coluna-1]!=NULL && p->coluna>0 && (tabuleiro[p->linha+p->codigo][p->coluna-1]->codigo*p->codigo)<0){
 			movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), (p->coluna-1));
+			tabuleiro[p->linha+p->codigo][p->coluna-1]->ataques++;
 		}
 		if(tabuleiro[p->linha+p->codigo][p->coluna-1]!=NULL && p->coluna<7 && (tabuleiro[p->linha+p->codigo][p->coluna+1]->codigo*p->codigo)<0){
 			movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), (p->coluna+1));
+			tabuleiro[p->linha+p->codigo][p->coluna+1]->ataques++;
 		}
 	}
 	return movimentos;
@@ -206,6 +195,7 @@ int main(){
 
 return 0;
 }
+
 
 		
 	
