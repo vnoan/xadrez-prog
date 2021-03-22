@@ -191,6 +191,31 @@ struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* ta
 return movimentos;
 }
 
+struct Jogada* bispo(struct Jogada* movimentos, struct Peca* p, struct Peca* tabuleiro[8][8]){
+  /*
+  a funçao recebe como parametro a lista de jogadas, o ponteiro da peça e o tabuleiro que é um ponteiro para todas as peças que ainda estao no jogo.
+  */
+  int k=0;
+  do{
+    k++;
+    if(p->linha+k<8 && p->coluna-k>=0){
+      if(tabuleiro[p->linha+k][p->coluna-k]!=NULL && tabuleiro[p->linha+k][p->coluna+k]->codigo*p->codigo<0){
+        /*
+        se a linha e a coluna da peça nao ultrapassarem 0 e 8 depois de somados com o contador, precisamos verificar se o ponteiro do tabuleiro na posicao linha+k coluna-k aponta para uma peça ou para nulo, caso aponte para uma peça, temos que verificar se a multiplicaçao da negativo pois isto significa que as duas peças sao de sinais diferentes, entao podemos realizar a captura
+        */
+        tabuleiro[p->linha+k][p->coluna-k]->ataques++;/*
+        se a açao for de captura temos que sinalizar que a peça adversaria esta sofrendo 1 ataque*/
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+k,p->coluna+k);
+      }else if(tabuleiro[p->linha+k][p->coluna+k]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+k,p->coluna+k);/*
+        Se o tabuleiro na posicao linha+k coluna-k estiver apontando para null significa que a casa esta livre entao nao eh uma jogada de captura, nao sinalizamos ataque para nenhuma peça, mas nos 2 casos temos que colocar as jogadas na lista de movimentos possiveis*/
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && tabuleiro[p->linha+k][p->coluna-k]==NULL);/*ja fiz a diagonal superior esquerda, o resto eh a mesma estrutura, a torre eh bem semelhante ao bispo*/
+  return movimentos;/*
+  nao se esquece de retornar a lista de movimentos no final*/
+}
+
 void AjustaCor(int peca){
     switch(abs(peca)){
     case 1: printf("\033[0;36m");break;
