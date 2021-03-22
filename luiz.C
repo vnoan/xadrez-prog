@@ -8,7 +8,7 @@ struct Peca{
 	int codigo;
 	int linha, coluna;
 	int ataques;
-	struct Peca *prox, *ant; 
+	struct Peca *prox, *ant;
 };
 
 struct Posicao{
@@ -33,7 +33,7 @@ struct Peca* InsereInicio(struct Peca* sentinela, int codigo, int linha, int col
 		if(sentinela==NULL){
 			novo->prox=novo;
 			novo->ant=novo;
-			return novo;		
+			return novo;
 			}
 			novo->prox=sentinela;
 			novo->ant=sentinela->ant;
@@ -51,7 +51,7 @@ struct Jogada* InsereIniciojogada(struct Jogada* sentinela, int linhaDe, int col
 		if(sentinela==NULL){
 			novo->prox=novo;
 			novo->ant=novo;
-			return novo;		
+			return novo;
 			}
 			novo->prox=sentinela;
 			novo->ant=sentinela->ant;
@@ -114,6 +114,7 @@ struct Jogada* peao(struct Jogada* movimentos, struct Peca* p, struct Peca* tabu
 	return movimentos;
 }
 
+//Inicio das funções de jogadas de peças
 struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* tabuleiro[8][8]){
   if(p->linha<6){
    if(p->coluna<7){
@@ -199,22 +200,218 @@ struct Jogada* bispo(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
   do{
     k++;
     if(p->linha+k<8 && p->coluna-k>=0){
-      if(tabuleiro[p->linha+k][p->coluna-k]!=NULL && tabuleiro[p->linha+k][p->coluna+k]->codigo*p->codigo<0){
+      if(tabuleiro[p->linha+k][p->coluna-k]!=NULL && tabuleiro[p->linha+k][p->coluna-k]->codigo*p->codigo<0){
         /*
-        se a linha e a coluna da peça nao ultrapassarem 0 e 8 depois de somados com o contador, precisamos verificar se o ponteiro do tabuleiro na posicao linha+k coluna-k aponta para uma peça ou para nulo, caso aponte para uma peça, temos que verificar se a multiplicaçao da negativo pois isto significa que as duas peças sao de sinais diferentes, entao podemos realizar a captura
+        se a linha e a coluna da peça nao ultrapassarem 0 e 8 depois de somados com o contador, precisamos verificar se o ponteiro do tabuleiro na posicao linha+k coluna-k
+				aponta para uma peça ou para nulo, caso aponte para uma peça, temos que verificar se a multiplicaçao da negativo pois isto significa que as duas peças sao de sinais diferentes,
+				entao podemos realizar a captura
         */
         tabuleiro[p->linha+k][p->coluna-k]->ataques++;/*
         se a açao for de captura temos que sinalizar que a peça adversaria esta sofrendo 1 ataque*/
-        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+k,p->coluna+k);
-      }else if(tabuleiro[p->linha+k][p->coluna+k]==NULL){
-        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+k,p->coluna+k);/*
-        Se o tabuleiro na posicao linha+k coluna-k estiver apontando para null significa que a casa esta livre entao nao eh uma jogada de captura, nao sinalizamos ataque para nenhuma peça, mas nos 2 casos temos que colocar as jogadas na lista de movimentos possiveis*/
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+k,p->coluna-k);
+      }else if(tabuleiro[p->linha+k][p->coluna-k]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+k,p->coluna-k);/*
+        Se o tabuleiro na posicao linha+k coluna-k estiver apontando para null significa que a casa esta livre entao nao eh uma jogada de captura, nao sinalizamos ataque para
+				nenhuma peça, mas nos 2 casos temos que colocar as jogadas na lista de movimentos possiveis*/
       }
     }
-  }while(p->linha+k<8 && p->linha-k>=0 && tabuleiro[p->linha+k][p->coluna-k]==NULL);/*ja fiz a diagonal superior esquerda, o resto eh a mesma estrutura, a torre eh bem semelhante ao bispo*/
-  return movimentos;/*
-  nao se esquece de retornar a lista de movimentos no final*/
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+k][p->coluna-k]==NULL);
+	/*ja fiz a diagonal superior esquerda, o resto eh a mesma estrutura, a torre é bem semelhante ao bispo*/
+
+	//Diagonal superior direita
+	k=0;
+  do{
+    k++;
+    if(p->linha+k<8 && p->coluna+k<8){
+      if(tabuleiro[p->linha+k][p->coluna+k]!=NULL && tabuleiro[p->linha+k][p->coluna+k]->codigo*p->codigo<0){
+        tabuleiro[p->linha+k][p->coluna+k]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+k,p->coluna+k);
+      }else if(tabuleiro[p->linha+k][p->coluna+k]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+k,p->coluna+k);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+k][p->coluna+k]==NULL);
+
+	//Diagonal inferior esquerda
+	k=0;
+  do{
+    k++;
+    if(p->linha-k>=0 && p->coluna-k>=0){
+      if(tabuleiro[p->linha-k][p->coluna-k]!=NULL && tabuleiro[p->linha-k][p->coluna-k]->codigo*p->codigo<0){
+        tabuleiro[p->linha-k][p->coluna-k]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha-k,p->coluna-k);
+      }else if(tabuleiro[p->linha-k][p->coluna-k]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha-k,p->coluna-k);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha-k][p->coluna-k]==NULL);
+
+	//Diagonal inferior direita
+	k=0;
+  do{
+    k++;
+    if(p->linha-k>=0 && p->coluna+k<8){
+      if(tabuleiro[p->linha-k][p->coluna+k]!=NULL && tabuleiro[p->linha-k][p->coluna+k]->codigo*p->codigo<0){
+        tabuleiro[p->linha-k][p->coluna+k]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha-k,p->coluna+k);
+      }else if(tabuleiro[p->linha-k][p->coluna+k]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha-k,p->coluna+k);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha-k][p->coluna+k]==NULL);
+
+  return movimentos;
 }
+
+//Torre
+struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tabuleiro[8][8]){
+	int k = 0;
+	do{//Cima
+    k++;
+    if(p->coluna+k<8){
+      if(tabuleiro[p->linha][p->coluna+k]!=NULL && tabuleiro[p->linha][p->coluna+k]->codigo*p->codigo<0){
+        tabuleiro[p->linha][p->coluna+k]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha,p->coluna+k);
+      }else if(tabuleiro[p->linha][p->coluna+k]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha,p->coluna+k);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha][p->coluna+k]==NULL);
+
+	k = 0;
+	do{//Direita
+    k++;
+    if(p->linha+k<8){
+      if(tabuleiro[p->linha+k][p->coluna]!=NULL && tabuleiro[p->linha+k][p->coluna]->codigo*p->codigo<0){
+        tabuleiro[p->linha+k][p->coluna]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+k,p->coluna);
+      }else if(tabuleiro[p->linha+k][p->coluna]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+k,p->coluna);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+k][p->coluna]==NULL);
+
+	k = 0;
+	do{//Baixo
+    k++;
+    if(p->coluna-k>=0){
+      if(tabuleiro[p->linha][p->coluna-k]!=NULL && tabuleiro[p->linha][p->coluna-k]->codigo*p->codigo<0){
+        tabuleiro[p->linha][p->coluna-k]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha,p->coluna-k);
+      }else if(tabuleiro[p->linha][p->coluna-k]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha,p->coluna-k);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha][p->coluna-k]==NULL);
+
+	k = 0;
+	do{//Esquerda
+    k++;
+    if(p->linha-k>=0){
+      if(tabuleiro[p->linha-k][p->coluna]!=NULL && tabuleiro[p->linha-k][p->coluna]->codigo*p->codigo<0){
+        tabuleiro[p->linha-k][p->coluna]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha-k,p->coluna);
+      }else if(tabuleiro[p->linha-k][p->coluna]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha-k,p->coluna);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha-k][p->coluna]==NULL);
+
+	return movimentos;
+}
+
+struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabuleiro[8][8]){
+	do{
+		if(p->coluna+1<8){
+      if(tabuleiro[p->linha][p->coluna+1]!=NULL && tabuleiro[p->linha][p->coluna+1]->codigo*p->codigo<0){
+        tabuleiro[p->linha][p->coluna+1]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha,p->coluna+1);
+      }else if(tabuleiro[p->linha][p->coluna+1]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha,p->coluna+1);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha][p->coluna+1]==NULL);
+
+	do{
+		if(p->linha+1<8 && p->coluna+1<8){
+      if(tabuleiro[p->linha+1][p->coluna+1]!=NULL && tabuleiro[p->linha+1][p->coluna+1]->codigo*p->codigo<0){
+        tabuleiro[p->linha+1][p->coluna+1]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna+1);
+      }else if(tabuleiro[p->linha+1][p->coluna+1]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna+1);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+1][p->coluna+1]==NULL);
+
+	do{
+		if(p->linha+1<8){
+      if(tabuleiro[p->linha+1][p->coluna]!=NULL && tabuleiro[p->linha+1][p->coluna]->codigo*p->codigo<0){
+        tabuleiro[p->linha+1][p->coluna]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna);
+      }else if(tabuleiro[p->linha+1][p->coluna]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+1][p->coluna]==NULL);
+
+	do{
+		if(p->linha+1<8 && p->coluna-1>=0){
+      if(tabuleiro[p->linha+1][p->coluna-1]!=NULL && tabuleiro[p->linha+1][p->coluna-1]->codigo*p->codigo<0){
+        tabuleiro[p->linha+1][p->coluna-1]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna-1);
+      }else if(tabuleiro[p->linha+1][p->coluna-1]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna-1);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+1][p->coluna-1]==NULL);
+
+	do{
+		if(p->coluna-1>=0){
+      if(tabuleiro[p->linha][p->coluna-1]!=NULL && tabuleiro[p->linha][p->coluna-1]->codigo*p->codigo<0){
+        tabuleiro[p->linha][p->coluna-1]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha,p->coluna-1);
+      }else if(tabuleiro[p->linha][p->coluna-1]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha,p->coluna-1);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha][p->coluna-1]==NULL);
+
+	do{
+		if(p->linha-1<8 && p->coluna-1>=0){
+      if(tabuleiro[p->linha-1][p->coluna-1]!=NULL && tabuleiro[p->linha-1][p->coluna-1]->codigo*p->codigo<0){
+        tabuleiro[p->linha-1][p->coluna-1]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha-1,p->coluna-1);
+      }else if(tabuleiro[p->linha-1][p->coluna-1]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha-1,p->coluna-1);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha-1][p->coluna-1]==NULL);
+
+	do{
+		if(p->linha-1<8){
+      if(tabuleiro[p->linha-1][p->coluna]!=NULL && tabuleiro[p->linha-1][p->coluna]->codigo*p->codigo<0){
+        tabuleiro[p->linha-1][p->coluna]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha-1,p->coluna);
+      }else if(tabuleiro[p->linha-1][p->coluna]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha-1,p->coluna);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha-1][p->coluna]==NULL);
+
+	do{
+		if(p->linha+1<8 && p->coluna-1>=0){
+      if(tabuleiro[p->linha+1][p->coluna-1]!=NULL && tabuleiro[p->linha+1][p->coluna-1]->codigo*p->codigo<0){
+        tabuleiro[p->linha+1][p->coluna-1]->ataques++;
+        movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna-1);
+      }else if(tabuleiro[p->linha+1][p->coluna-1]==NULL){
+        movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna-1);
+      }
+    }
+  }while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+1][p->coluna-1]==NULL);
+
+	return movimentos;
+}
+//Fim das funções de jogada de peças
 
 void AjustaCor(int peca){
     switch(abs(peca)){
@@ -226,11 +423,11 @@ void AjustaCor(int peca){
     case 6: printf("\033[1;31m");break;
     }
 }
-    
+
 void ResetCor(){
     printf("\033[0m");
 }
-    
+
 void Desenha(struct Posicao PosAtual)
 {
 	printf("\n\n\n\n\n");
@@ -255,9 +452,9 @@ void Desenha(struct Posicao PosAtual)
 			AjustaCor(PosAtual.tab[i][j]->codigo);
 				printf("%d", PosAtual.tab[i][j]->codigo);
 				ResetCor();
-				
+
 			}
-			 
+
 		}
 		printf("|\n\t\t\t\t\t\t  -------------------------\n");
 	}
@@ -301,7 +498,7 @@ do{
 			movimentos=bispo(movimentos, aux, PosAtual.tab);
 			break;
 			case:6 case: -6
-			movimentos=rei(movimentos, aux, PosAtual.tab); 
+			movimentos=rei(movimentos, aux, PosAtual.tab);
 			break;*/
 		}
 		aux=aux->prox;
