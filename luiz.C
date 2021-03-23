@@ -124,7 +124,7 @@ struct Posicao IniciaTabuleiro()
     tabuleiro.tab[0][6]=InsereInicioPeca(tabuleiro.brancas, 2, 0, 6, 0);
     tabuleiro.tab[0][2]=InsereInicioPeca(tabuleiro.brancas, 3, 0, 2, 0);
     tabuleiro.tab[0][5]=InsereInicioPeca(tabuleiro.brancas, 3, 0, 5, 0);
-    //tabuleiro.tab[0][4]=InsereInicioPeca(tabuleiro.brancas, 6, 0, 4, 0);
+    tabuleiro.tab[0][4]=InsereInicioPeca(tabuleiro.brancas, 6, 0, 4, 0);
     tabuleiro.tab[0][3]=InsereInicioPeca(tabuleiro.brancas, 5, 0, 3, 0);
 
     tabuleiro.tab[7][0]=InsereInicioPeca(tabuleiro.pretas, -4, 7, 0, 0);
@@ -133,7 +133,7 @@ struct Posicao IniciaTabuleiro()
     tabuleiro.tab[7][6]=InsereInicioPeca(tabuleiro.pretas, -2, 7, 6, 0);
     tabuleiro.tab[7][2]=InsereInicioPeca(tabuleiro.pretas, -3, 7, 2, 0);
     tabuleiro.tab[7][5]=InsereInicioPeca(tabuleiro.pretas, -3, 7, 5, 0);
-    //tabuleiro.tab[7][4]=InsereInicioPeca(tabuleiro.pretas, -6, 7, 4, 0);
+    tabuleiro.tab[7][4]=InsereInicioPeca(tabuleiro.pretas, -6, 7, 4, 0);
     tabuleiro.tab[7][3]=InsereInicioPeca(tabuleiro.pretas, -5, 7, 3, 0);
 
     return tabuleiro;
@@ -457,141 +457,172 @@ struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
 struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabuleiro[8][8])
 {
     int k = 0;
-    do
-    {
-        if(p->coluna+1<8)
+    if(p->coluna < 7){
+        do
         {
-            if(tabuleiro[p->linha][p->coluna+1]!=NULL && tabuleiro[p->linha][p->coluna+1]->codigo*p->codigo<0)
+            k++;
+            if(p->coluna+1<8)
             {
-                tabuleiro[p->linha][p->coluna+1]->ataques++;
-                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha,p->coluna+1);
-            }
-            else if(tabuleiro[p->linha][p->coluna+1]==NULL)
-            {
-                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha,p->coluna+1);
+                if(tabuleiro[p->linha][p->coluna+1]!=NULL && tabuleiro[p->linha][p->coluna+1]->codigo*p->codigo<0)
+                {
+                    tabuleiro[p->linha][p->coluna+1]->ataques++;
+                    movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha,p->coluna+1);
+                }
+                else if(tabuleiro[p->linha][p->coluna+1]==NULL)
+                {
+                    movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha,p->coluna+1);
+                }
             }
         }
+        while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha][p->coluna+1]==NULL);
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha][p->coluna+1]==NULL);
-    k = 0;
-    do
-    {
-        if(p->linha+1<8 && p->coluna+1<8)
+
+    if(p->coluna < 7 && p->linha < 7){
+        k = 0;
+        do
         {
-            if(tabuleiro[p->linha+1][p->coluna+1]!=NULL && tabuleiro[p->linha+1][p->coluna+1]->codigo*p->codigo<0)
+            k++;
+            if(p->linha+1<8 && p->coluna+1<8)
             {
-                tabuleiro[p->linha+1][p->coluna+1]->ataques++;
-                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna+1);
-            }
-            else if(tabuleiro[p->linha+1][p->coluna+1]==NULL)
-            {
-                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna+1);
+                if(tabuleiro[p->linha+1][p->coluna+1]!=NULL && tabuleiro[p->linha+1][p->coluna+1]->codigo*p->codigo<0)
+                {
+                    tabuleiro[p->linha+1][p->coluna+1]->ataques++;
+                    movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna+1);
+                }
+                else if(tabuleiro[p->linha+1][p->coluna+1]==NULL)
+                {
+                    movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna+1);
+                }
             }
         }
+        while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+1][p->coluna+1]==NULL);
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+1][p->coluna+1]==NULL);
-    k = 0;
-    do
-    {
-        if(p->linha+1<8)
+
+    if(p->linha < 7){
+        k = 0;
+        do
         {
-            if(tabuleiro[p->linha+1][p->coluna]!=NULL && tabuleiro[p->linha+1][p->coluna]->codigo*p->codigo<0)
+            k++;
+            if(p->linha+1<8)
             {
-                tabuleiro[p->linha+1][p->coluna]->ataques++;
-                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna);
-            }
-            else if(tabuleiro[p->linha+1][p->coluna]==NULL)
-            {
-                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna);
+                if(tabuleiro[p->linha+1][p->coluna]!=NULL && tabuleiro[p->linha+1][p->coluna]->codigo*p->codigo<0)
+                {
+                    tabuleiro[p->linha+1][p->coluna]->ataques++;
+                    movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna);
+                }
+                else if(tabuleiro[p->linha+1][p->coluna]==NULL)
+                {
+                    movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna);
+                }
             }
         }
+        while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+1][p->coluna]==NULL);
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+1][p->coluna]==NULL);
-    k = 0;
-    do
-    {
-        if(p->linha+1<8 && p->coluna-1>=0)
+
+    if(p->coluna > 0 && p->linha < 7){
+        k = 0;
+        do
         {
-            if(tabuleiro[p->linha+1][p->coluna-1]!=NULL && tabuleiro[p->linha+1][p->coluna-1]->codigo*p->codigo<0)
+            k++;
+            if(p->linha+1<8 && p->coluna-1>=0)
             {
-                tabuleiro[p->linha+1][p->coluna-1]->ataques++;
-                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna-1);
-            }
-            else if(tabuleiro[p->linha+1][p->coluna-1]==NULL)
-            {
-                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna-1);
+                if(tabuleiro[p->linha+1][p->coluna-1]!=NULL && tabuleiro[p->linha+1][p->coluna-1]->codigo*p->codigo<0)
+                {
+                    tabuleiro[p->linha+1][p->coluna-1]->ataques++;
+                    movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna-1);
+                }
+                else if(tabuleiro[p->linha+1][p->coluna-1]==NULL)
+                {
+                    movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna-1);
+                }
             }
         }
+        while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+1][p->coluna-1]==NULL);
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+1][p->coluna-1]==NULL);
-    k = 0;
-    do
-    {
-        if(p->coluna-1>=0)
+
+    if(p->coluna > 0){
+        k = 0;
+        do
         {
-            if(tabuleiro[p->linha][p->coluna-1]!=NULL && tabuleiro[p->linha][p->coluna-1]->codigo*p->codigo<0)
+            k++;
+            if(p->coluna-1>=0)
             {
-                tabuleiro[p->linha][p->coluna-1]->ataques++;
-                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha,p->coluna-1);
-            }
-            else if(tabuleiro[p->linha][p->coluna-1]==NULL)
-            {
-                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha,p->coluna-1);
+                if(tabuleiro[p->linha][p->coluna-1]!=NULL && tabuleiro[p->linha][p->coluna-1]->codigo*p->codigo<0)
+                {
+                    tabuleiro[p->linha][p->coluna-1]->ataques++;
+                    movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha,p->coluna-1);
+                }
+                else if(tabuleiro[p->linha][p->coluna-1]==NULL)
+                {
+                    movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha,p->coluna-1);
+                }
             }
         }
+        while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha][p->coluna-1]==NULL);
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha][p->coluna-1]==NULL);
-    k = 0;
-    do
-    {
-        if(p->linha-1<8 && p->coluna-1>=0)
+
+    if(p->coluna > 0 && p->linha > 0){
+        k = 0;
+        do
         {
-            if(tabuleiro[p->linha-1][p->coluna-1]!=NULL && tabuleiro[p->linha-1][p->coluna-1]->codigo*p->codigo<0)
+            k++;
+            if(p->linha-1<8 && p->coluna-1>=0)
             {
-                tabuleiro[p->linha-1][p->coluna-1]->ataques++;
-                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha-1,p->coluna-1);
-            }
-            else if(tabuleiro[p->linha-1][p->coluna-1]==NULL)
-            {
-                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha-1,p->coluna-1);
+                if(tabuleiro[p->linha-1][p->coluna-1]!=NULL && tabuleiro[p->linha-1][p->coluna-1]->codigo*p->codigo<0)
+                {
+                    tabuleiro[p->linha-1][p->coluna-1]->ataques++;
+                    movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha-1,p->coluna-1);
+                }
+                else if(tabuleiro[p->linha-1][p->coluna-1]==NULL)
+                {
+                    movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha-1,p->coluna-1);
+                }
             }
         }
+        while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha-1][p->coluna-1]==NULL);
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha-1][p->coluna-1]==NULL);
-    k = 0;
-    do
-    {
-        if(p->linha-1<8)
+
+    if(p->linha > 0){
+        k = 0;
+        do
         {
-            if(tabuleiro[p->linha-1][p->coluna]!=NULL && tabuleiro[p->linha-1][p->coluna]->codigo*p->codigo<0)
+            k++;
+            if(p->linha-1<8)
             {
-                tabuleiro[p->linha-1][p->coluna]->ataques++;
-                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha-1,p->coluna);
-            }
-            else if(tabuleiro[p->linha-1][p->coluna]==NULL)
-            {
-                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha-1,p->coluna);
+                if(tabuleiro[p->linha-1][p->coluna]!=NULL && tabuleiro[p->linha-1][p->coluna]->codigo*p->codigo<0)
+                {
+                    tabuleiro[p->linha-1][p->coluna]->ataques++;
+                    movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha-1,p->coluna);
+                }
+                else if(tabuleiro[p->linha-1][p->coluna]==NULL)
+                {
+                    movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha-1,p->coluna);
+                }
             }
         }
+        while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha-1][p->coluna]==NULL);
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha-1][p->coluna]==NULL);
-    k = 0;
-    do
-    {
-        if(p->linha+1<8 && p->coluna-1>=0)
+
+    if(p->coluna > 0){
+        k = 0;
+        do
         {
-            if(tabuleiro[p->linha+1][p->coluna-1]!=NULL && tabuleiro[p->linha+1][p->coluna-1]->codigo*p->codigo<0)
+            k++;
+            if(p->linha+1<8 && p->coluna-1>=0)
             {
-                tabuleiro[p->linha+1][p->coluna-1]->ataques++;
-                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna-1);
-            }
-            else if(tabuleiro[p->linha+1][p->coluna-1]==NULL)
-            {
-                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna-1);
+                if(tabuleiro[p->linha+1][p->coluna-1]!=NULL && tabuleiro[p->linha+1][p->coluna-1]->codigo*p->codigo<0)
+                {
+                    tabuleiro[p->linha+1][p->coluna-1]->ataques++;
+                    movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna-1);
+                }
+                else if(tabuleiro[p->linha+1][p->coluna-1]==NULL)
+                {
+                    movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna-1);
+                }
             }
         }
+        while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+1][p->coluna-1]==NULL);
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+1][p->coluna-1]==NULL);
 
     return movimentos;
 }
@@ -691,7 +722,7 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
     struct Jogada* movimentos = CriaListaJogada();
     do
     {
-        printf("para peca %d- \n",abs(aux->codigo));
+        //printf("para peca %d- \n",abs(aux->codigo));
         switch (abs(aux->codigo))
         {
         case 1: case -1:
@@ -717,12 +748,13 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
         }
         aux=aux->prox;
 
-
+        /*
         struct Jogada* jogadasPossiveis = movimentos->prox;
         while(movimentos != NULL && jogadasPossiveis->linhaDe != -1) {
             printf("%d %d - %d %d\n", jogadasPossiveis->linhaDe, jogadasPossiveis->colunaDe, jogadasPossiveis->linhaPara, jogadasPossiveis->colunaPara);
             jogadasPossiveis = jogadasPossiveis->prox;
         }
+        */
 
     }
     while(aux->prox->codigo != 0);
@@ -754,8 +786,10 @@ void Jogo(struct Posicao tabuleiro)
         scanf("%d", &jogada->colunaDe);
     };
 
-    while(jogadasPossiveis->linhaDe != -1) {
-        printf("%d %d - %d %d\n", jogadasPossiveis->linhaDe, jogadasPossiveis->colunaDe, jogadasPossiveis->linhaPara, jogadasPossiveis->colunaPara);
+    while(jogadasPossiveis->prox->linhaDe != -1) {
+        if(jogadasPossiveis->linhaDe != -1){
+            printf("%d %d - %d %d\n", jogadasPossiveis->linhaDe, jogadasPossiveis->colunaDe, jogadasPossiveis->linhaPara, jogadasPossiveis->colunaPara);
+        }
         jogadasPossiveis = jogadasPossiveis->prox;
     }
     fflush(stdin);
