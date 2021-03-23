@@ -27,9 +27,27 @@ struct  Jogada
     int linhaDe, colunaDe, linhaPara, colunaPara;
     struct Jogada *prox, *ant;
 };
-struct Peca* InsereInicio(struct Peca* sentinela, int codigo, int linha, int coluna, int ataques)
+
+struct Peca* CriaListaPeca() {
+    struct Peca* sentinela = (struct Peca*) malloc(sizeof(struct Peca));
+    sentinela->prox = sentinela;
+    sentinela->ant = sentinela;
+    sentinela->codigo = 0;
+    return sentinela;
+};
+
+struct Jogada* CriaListaJogada() {
+    struct Jogada* sentinela = (struct Jogada*) malloc(sizeof(struct Jogada*));
+    sentinela->prox = sentinela;
+    sentinela->ant = sentinela;
+    sentinela->linhaDe = -1;
+    sentinela->colunaDe = -1;
+    return sentinela;
+};
+
+struct Peca* InsereInicioPeca(struct Peca* sentinela, int codigo, int linha, int coluna, int ataques)
 {
-    struct Peca* novo= (struct Peca* )malloc(sizeof(struct Peca));
+    struct Peca* novo= (struct Peca*)malloc(sizeof(struct Peca));
     novo->linha=linha;
     novo->coluna=coluna;
     novo->codigo=codigo;
@@ -44,16 +62,16 @@ struct Peca* InsereInicio(struct Peca* sentinela, int codigo, int linha, int col
         novo->ant=sentinela;
         return novo;
     }
-    novo->prox=sentinela;
-    novo->ant=sentinela->ant;
-    sentinela->ant->prox=novo;
-    sentinela->ant=novo;
-    sentinela=novo;
-    return sentinela;
+    novo->prox=sentinela->prox;
+    novo->ant=sentinela;
+    sentinela->prox->ant=novo;
+    sentinela->prox=novo;
+    //sentinela=novo;
+    return novo;
 }
-struct Jogada* InsereIniciojogada(struct Jogada* sentinela, int linhaDe, int colunaDe, int linhaPara, int colunaPara)
+struct Jogada* InsereInicioJogada(struct Jogada* sentinela, int linhaDe, int colunaDe, int linhaPara, int colunaPara)
 {
-    struct Jogada* novo= (struct Jogada* )malloc(sizeof(struct Jogada));
+    struct Jogada* novo = (struct Jogada*)malloc(sizeof(struct Jogada));
     novo->linhaDe=linhaDe;
     novo->colunaDe=colunaDe;
     novo->linhaPara=linhaPara;
@@ -69,18 +87,19 @@ struct Jogada* InsereIniciojogada(struct Jogada* sentinela, int linhaDe, int col
         novo->ant=sentinela;
         return novo;
     }
-    novo->prox=sentinela;
-    novo->ant=sentinela->ant;
-    sentinela->ant->prox=novo;
-    sentinela->ant=novo;
-    sentinela=novo;
+    novo->prox=sentinela->prox;
+    novo->ant=sentinela;
+    sentinela->prox->ant=novo;
+    sentinela->prox=novo;
+    //sentinela=novo;
     return sentinela;
 }
 struct Posicao IniciaTabuleiro()
 {
-    int i, j, jogVez=1;
+    int i, j;
 
     struct Posicao tabuleiro;
+    tabuleiro.jogVez = 1;
     tabuleiro.brancas=tabuleiro.pretas=NULL;
     for(i=0; i<8; i++)
     {
@@ -91,28 +110,32 @@ struct Posicao IniciaTabuleiro()
     }
     tabuleiro.qtdPretas=16;
     tabuleiro.qtdBrancas=16;
+    tabuleiro.brancas = CriaListaPeca();
+    tabuleiro.pretas = CriaListaPeca();
     for(i=0; i<8; i++)
     {
-        tabuleiro.tab[1][i]=tabuleiro.brancas=InsereInicio(tabuleiro.brancas, 1, 1, i, 0);
-        tabuleiro.tab[6][i]=tabuleiro.pretas=InsereInicio(tabuleiro.brancas, -1, 6, i, 0);
+        tabuleiro.tab[1][i]=InsereInicioPeca(tabuleiro.brancas, 1, 1, i, 0);
+        tabuleiro.tab[6][i]=InsereInicioPeca(tabuleiro.pretas, -1, 6, i, 0);
     }
-    tabuleiro.tab[0][0]=tabuleiro.brancas=InsereInicio(tabuleiro.brancas, 4, 0, 0, 0);
-    tabuleiro.tab[0][7]=tabuleiro.brancas=InsereInicio(tabuleiro.brancas, 4, 0, 7, 0);
-    tabuleiro.tab[0][1]=tabuleiro.brancas=InsereInicio(tabuleiro.brancas, 2, 0, 1, 0);
-    tabuleiro.tab[0][6]=tabuleiro.brancas=InsereInicio(tabuleiro.brancas, 2, 0, 6, 0);
-    tabuleiro.tab[0][2]=tabuleiro.brancas=InsereInicio(tabuleiro.brancas, 3, 0, 2, 0);
-    tabuleiro.tab[0][5]=tabuleiro.brancas=InsereInicio(tabuleiro.brancas, 3, 0, 5, 0);
-    tabuleiro.tab[0][4]=tabuleiro.brancas=InsereInicio(tabuleiro.brancas, 6, 0, 4, 0);
-    tabuleiro.tab[0][3]=tabuleiro.brancas=InsereInicio(tabuleiro.brancas, 5, 0, 3, 0);
 
-    tabuleiro.tab[7][0]=tabuleiro.pretas=InsereInicio(tabuleiro.pretas, -4, 7, 0, 0);
-    tabuleiro.tab[7][7]=tabuleiro.pretas=InsereInicio(tabuleiro.pretas, -4, 7, 7, 0);
-    tabuleiro.tab[7][1]=tabuleiro.pretas=InsereInicio(tabuleiro.pretas, -2, 7, 1, 0);
-    tabuleiro.tab[7][6]=tabuleiro.pretas=InsereInicio(tabuleiro.pretas, -2, 7, 6, 0);
-    tabuleiro.tab[7][2]=tabuleiro.pretas=InsereInicio(tabuleiro.pretas, -3, 7, 2, 0);
-    tabuleiro.tab[7][5]=tabuleiro.pretas=InsereInicio(tabuleiro.pretas, -3, 7, 5, 0);
-    tabuleiro.tab[7][4]=tabuleiro.pretas=InsereInicio(tabuleiro.pretas, -6, 7, 4, 0);
-    tabuleiro.tab[7][3]=tabuleiro.pretas=InsereInicio(tabuleiro.pretas, -5, 7, 3, 0);
+    tabuleiro.tab[0][0]=InsereInicioPeca(tabuleiro.brancas, 4, 0, 0, 0);
+    tabuleiro.tab[0][7]=InsereInicioPeca(tabuleiro.brancas, 4, 0, 7, 0);
+    tabuleiro.tab[0][1]=InsereInicioPeca(tabuleiro.brancas, 2, 0, 1, 0);
+    tabuleiro.tab[0][6]=InsereInicioPeca(tabuleiro.brancas, 2, 0, 6, 0);
+    tabuleiro.tab[0][2]=InsereInicioPeca(tabuleiro.brancas, 3, 0, 2, 0);
+    tabuleiro.tab[0][5]=InsereInicioPeca(tabuleiro.brancas, 3, 0, 5, 0);
+    //tabuleiro.tab[0][4]=InsereInicioPeca(tabuleiro.brancas, 6, 0, 4, 0);
+    tabuleiro.tab[0][3]=InsereInicioPeca(tabuleiro.brancas, 5, 0, 3, 0);
+
+    tabuleiro.tab[7][0]=InsereInicioPeca(tabuleiro.pretas, -4, 7, 0, 0);
+    tabuleiro.tab[7][7]=InsereInicioPeca(tabuleiro.pretas, -4, 7, 7, 0);
+    tabuleiro.tab[7][1]=InsereInicioPeca(tabuleiro.pretas, -2, 7, 1, 0);
+    tabuleiro.tab[7][6]=InsereInicioPeca(tabuleiro.pretas, -2, 7, 6, 0);
+    tabuleiro.tab[7][2]=InsereInicioPeca(tabuleiro.pretas, -3, 7, 2, 0);
+    tabuleiro.tab[7][5]=InsereInicioPeca(tabuleiro.pretas, -3, 7, 5, 0);
+    //tabuleiro.tab[7][4]=InsereInicioPeca(tabuleiro.pretas, -6, 7, 4, 0);
+    tabuleiro.tab[7][3]=InsereInicioPeca(tabuleiro.pretas, -5, 7, 3, 0);
+
     return tabuleiro;
 
 }
@@ -123,16 +146,16 @@ struct Jogada* peao(struct Jogada* movimentos, struct Peca* p, struct Peca* tabu
     {
         if(tabuleiro[p->linha+p->codigo][p->coluna]==NULL)
         {
-            movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), p->coluna);
+            movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), p->coluna);
         }
         if(tabuleiro[p->linha+p->codigo][p->coluna-1]!=NULL && p->coluna>0 && (tabuleiro[p->linha+p->codigo][p->coluna-1]->codigo*p->codigo)<0)
         {
-            movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), (p->coluna-1));
+            movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), (p->coluna-1));
             tabuleiro[p->linha+p->codigo][p->coluna-1]->ataques++;
         }
         if(tabuleiro[p->linha+p->codigo][p->coluna-1]!=NULL && p->coluna<7 && (tabuleiro[p->linha+p->codigo][p->coluna+1]->codigo*p->codigo)<0)
         {
-            movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), (p->coluna+1));
+            movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), (p->coluna+1));
             tabuleiro[p->linha+p->codigo][p->coluna+1]->ataques++;
         }
     }
@@ -149,11 +172,11 @@ struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* ta
             if(tabuleiro[p->linha+2][p->coluna+1]!=NULL && tabuleiro[p->linha+2][p->coluna+1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha+2][p->coluna+1]->ataques++;
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+2, p->coluna+1);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha+2, p->coluna+1);
             }
             else if(tabuleiro[p->linha+2][p->coluna+1]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+2, p->coluna+1);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha+2, p->coluna+1);
             }
         }
         if(p->coluna>0)
@@ -161,11 +184,11 @@ struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* ta
             if(tabuleiro[p->linha+2][p->coluna-1]!=NULL && tabuleiro[p->linha+2][p->coluna-1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha+2][p->coluna+1]->ataques++;
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+2, p->coluna-1);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha+2, p->coluna-1);
             }
             else if(tabuleiro[p->linha+2][p->coluna-1]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+2, p->coluna-1);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha+2, p->coluna-1);
             }
         }
     }
@@ -176,11 +199,11 @@ struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* ta
             if(tabuleiro[p->linha+1][p->coluna+2]!=NULL && tabuleiro[p->linha+1][p->coluna+2]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha+1][p->coluna+2]->ataques++;
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+1, p->coluna+2);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha+1, p->coluna+2);
             }
             else if(tabuleiro[p->linha+1][p->coluna+2]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+1, p->coluna+2);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha+1, p->coluna+2);
             }
         }
         if(p->coluna>1)
@@ -188,11 +211,11 @@ struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* ta
             if(tabuleiro[p->linha+1][p->coluna-2]!=NULL && tabuleiro[p->linha+1][p->coluna-2]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha+1][p->coluna-2]->ataques++;
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+1, p->coluna-2);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha+1, p->coluna-2);
             }
             else if(tabuleiro[p->linha+1][p->coluna-2]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha+1, p->coluna-2);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha+1, p->coluna-2);
             }
         }
     }
@@ -203,11 +226,11 @@ struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* ta
             if(tabuleiro[p->linha-2][p->coluna+1]!=NULL && tabuleiro[p->linha-2][p->coluna+1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha-2][p->coluna+1]->ataques++;
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-2, p->coluna+1);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha-2, p->coluna+1);
             }
             else if(tabuleiro[p->linha-2][p->coluna+1]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-2, p->coluna+1);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha-2, p->coluna+1);
             }
         }
         if(p->coluna>0)
@@ -215,11 +238,11 @@ struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* ta
             if(tabuleiro[p->linha-2][p->coluna-1]!=NULL && tabuleiro[p->linha-2][p->coluna-1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha-2][p->coluna-1]->ataques++;
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-2, p->coluna-1);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha-2, p->coluna-1);
             }
             else if(tabuleiro[p->linha-2][p->coluna-1]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-2, p->coluna-1);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha-2, p->coluna-1);
             }
         }
     }
@@ -230,11 +253,11 @@ struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* ta
             if(tabuleiro[p->linha-1][p->coluna+2]!=NULL && tabuleiro[p->linha-1][p->coluna+2]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha-1][p->coluna+2]->ataques++;
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-1, p->coluna+2);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha-1, p->coluna+2);
             }
             else if(tabuleiro[p->linha-2][p->coluna-1]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-1, p->coluna+2);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha-1, p->coluna+2);
             }
         }
         if(p->coluna>1)
@@ -242,11 +265,11 @@ struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* ta
             if(tabuleiro[p->linha-1][p->coluna-2]!=NULL && tabuleiro[p->linha-1][p->coluna-2]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha-1][p->coluna-2]->ataques++;
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-1, p->coluna-2);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha-1, p->coluna-2);
             }
             else if(tabuleiro[p->linha-1][p->coluna-2]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos, p->linha, p->coluna, p->linha-1, p->coluna-2);
+                movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha-1, p->coluna-2);
             }
         }
     }
@@ -273,11 +296,11 @@ struct Jogada* bispo(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
                 */
                 tabuleiro[p->linha+k][p->coluna-k]->ataques++;/*
         se a açao for de captura temos que sinalizar que a peça adversaria esta sofrendo 1 ataque*/
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+k,p->coluna-k);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+k,p->coluna-k);
             }
             else if(tabuleiro[p->linha+k][p->coluna-k]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+k,p->coluna-k);/*
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+k,p->coluna-k);/*
         Se o tabuleiro na posicao linha+k coluna-k estiver apontando para null significa que a casa esta livre entao nao eh uma jogada de captura, nao sinalizamos ataque para
                 nenhuma peça, mas nos 2 casos temos que colocar as jogadas na lista de movimentos possiveis*/
             }
@@ -296,11 +319,11 @@ struct Jogada* bispo(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             if(tabuleiro[p->linha+k][p->coluna+k]!=NULL && tabuleiro[p->linha+k][p->coluna+k]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha+k][p->coluna+k]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+k,p->coluna+k);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+k,p->coluna+k);
             }
             else if(tabuleiro[p->linha+k][p->coluna+k]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+k,p->coluna+k);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+k,p->coluna+k);
             }
         }
     }
@@ -316,11 +339,11 @@ struct Jogada* bispo(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             if(tabuleiro[p->linha-k][p->coluna-k]!=NULL && tabuleiro[p->linha-k][p->coluna-k]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha-k][p->coluna-k]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha-k,p->coluna-k);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha-k,p->coluna-k);
             }
             else if(tabuleiro[p->linha-k][p->coluna-k]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha-k,p->coluna-k);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha-k,p->coluna-k);
             }
         }
     }
@@ -336,11 +359,11 @@ struct Jogada* bispo(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             if(tabuleiro[p->linha-k][p->coluna+k]!=NULL && tabuleiro[p->linha-k][p->coluna+k]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha-k][p->coluna+k]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha-k,p->coluna+k);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha-k,p->coluna+k);
             }
             else if(tabuleiro[p->linha-k][p->coluna+k]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha-k,p->coluna+k);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha-k,p->coluna+k);
             }
         }
     }
@@ -361,11 +384,11 @@ struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             if(tabuleiro[p->linha][p->coluna+k]!=NULL && tabuleiro[p->linha][p->coluna+k]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha][p->coluna+k]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha,p->coluna+k);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha,p->coluna+k);
             }
             else if(tabuleiro[p->linha][p->coluna+k]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha,p->coluna+k);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha,p->coluna+k);
             }
         }
     }
@@ -380,11 +403,11 @@ struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             if(tabuleiro[p->linha+k][p->coluna]!=NULL && tabuleiro[p->linha+k][p->coluna]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha+k][p->coluna]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+k,p->coluna);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+k,p->coluna);
             }
             else if(tabuleiro[p->linha+k][p->coluna]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+k,p->coluna);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+k,p->coluna);
             }
         }
     }
@@ -399,11 +422,11 @@ struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             if(tabuleiro[p->linha][p->coluna-k]!=NULL && tabuleiro[p->linha][p->coluna-k]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha][p->coluna-k]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha,p->coluna-k);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha,p->coluna-k);
             }
             else if(tabuleiro[p->linha][p->coluna-k]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha,p->coluna-k);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha,p->coluna-k);
             }
         }
     }
@@ -418,11 +441,11 @@ struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             if(tabuleiro[p->linha-k][p->coluna]!=NULL && tabuleiro[p->linha-k][p->coluna]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha-k][p->coluna]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha-k,p->coluna);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha-k,p->coluna);
             }
             else if(tabuleiro[p->linha-k][p->coluna]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha-k,p->coluna);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha-k,p->coluna);
             }
         }
     }
@@ -441,11 +464,11 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             if(tabuleiro[p->linha][p->coluna+1]!=NULL && tabuleiro[p->linha][p->coluna+1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha][p->coluna+1]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha,p->coluna+1);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha,p->coluna+1);
             }
             else if(tabuleiro[p->linha][p->coluna+1]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha,p->coluna+1);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha,p->coluna+1);
             }
         }
     }
@@ -458,11 +481,11 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             if(tabuleiro[p->linha+1][p->coluna+1]!=NULL && tabuleiro[p->linha+1][p->coluna+1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha+1][p->coluna+1]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna+1);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna+1);
             }
             else if(tabuleiro[p->linha+1][p->coluna+1]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna+1);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna+1);
             }
         }
     }
@@ -475,11 +498,11 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             if(tabuleiro[p->linha+1][p->coluna]!=NULL && tabuleiro[p->linha+1][p->coluna]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha+1][p->coluna]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna);
             }
             else if(tabuleiro[p->linha+1][p->coluna]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna);
             }
         }
     }
@@ -492,11 +515,11 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             if(tabuleiro[p->linha+1][p->coluna-1]!=NULL && tabuleiro[p->linha+1][p->coluna-1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha+1][p->coluna-1]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna-1);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna-1);
             }
             else if(tabuleiro[p->linha+1][p->coluna-1]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna-1);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna-1);
             }
         }
     }
@@ -509,11 +532,11 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             if(tabuleiro[p->linha][p->coluna-1]!=NULL && tabuleiro[p->linha][p->coluna-1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha][p->coluna-1]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha,p->coluna-1);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha,p->coluna-1);
             }
             else if(tabuleiro[p->linha][p->coluna-1]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha,p->coluna-1);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha,p->coluna-1);
             }
         }
     }
@@ -526,11 +549,11 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             if(tabuleiro[p->linha-1][p->coluna-1]!=NULL && tabuleiro[p->linha-1][p->coluna-1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha-1][p->coluna-1]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha-1,p->coluna-1);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha-1,p->coluna-1);
             }
             else if(tabuleiro[p->linha-1][p->coluna-1]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha-1,p->coluna-1);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha-1,p->coluna-1);
             }
         }
     }
@@ -543,11 +566,11 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             if(tabuleiro[p->linha-1][p->coluna]!=NULL && tabuleiro[p->linha-1][p->coluna]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha-1][p->coluna]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha-1,p->coluna);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha-1,p->coluna);
             }
             else if(tabuleiro[p->linha-1][p->coluna]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha-1,p->coluna);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha-1,p->coluna);
             }
         }
     }
@@ -560,11 +583,11 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             if(tabuleiro[p->linha+1][p->coluna-1]!=NULL && tabuleiro[p->linha+1][p->coluna-1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha+1][p->coluna-1]->ataques++;
-                movimentos=InsereIniciojogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna-1);
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+1,p->coluna-1);
             }
             else if(tabuleiro[p->linha+1][p->coluna-1]==NULL)
             {
-                movimentos=InsereIniciojogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna-1);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna-1);
             }
         }
     }
@@ -630,9 +653,7 @@ void Desenha(struct Posicao PosAtual)
                 //AjustaCor(PosAtual.tab[i][j]->codigo);
                 printf("%d", PosAtual.tab[i][j]->codigo);
                 //ResetCor();
-
             }
-
         }
         printf("|\n\t\t\t\t\t\t  -------------------------\n");
     }
@@ -667,16 +688,15 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
         aux=PosAtual.pretas;
     }
 
-    struct Jogada* movimentos = NULL;
+    struct Jogada* movimentos = CriaListaJogada();
     do
     {
-        printf("%d ", abs(aux->codigo));
+        printf("para peca %d- \n",abs(aux->codigo));
         switch (abs(aux->codigo))
         {
         case 1: case -1:
             movimentos=peao(movimentos, aux, PosAtual.tab);
             break;
-
         case 2: case -2:
             movimentos=cavalo(movimentos, aux, PosAtual.tab);
             break;
@@ -696,8 +716,16 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
 
         }
         aux=aux->prox;
+
+
+        struct Jogada* jogadasPossiveis = movimentos->prox;
+        while(movimentos != NULL && jogadasPossiveis->linhaDe != -1) {
+            printf("%d %d - %d %d\n", jogadasPossiveis->linhaDe, jogadasPossiveis->colunaDe, jogadasPossiveis->linhaPara, jogadasPossiveis->colunaPara);
+            jogadasPossiveis = jogadasPossiveis->prox;
+        }
+
     }
-    while(aux->prox!=PosAtual.brancas);
+    while(aux->prox->codigo != 0);
 
     return movimentos;
 }
