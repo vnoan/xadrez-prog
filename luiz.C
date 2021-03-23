@@ -786,11 +786,13 @@ void Jogo(struct Posicao tabuleiro)
         scanf("%d", &jogada->colunaDe);
     };
 
-    while(jogadasPossiveis->prox->linhaDe != -1) {
-        if(jogadasPossiveis->linhaDe != -1){
-            printf("%d %d - %d %d\n", jogadasPossiveis->linhaDe, jogadasPossiveis->colunaDe, jogadasPossiveis->linhaPara, jogadasPossiveis->colunaPara);
+    struct Jogada *aux = jogadasPossiveis->prox;
+
+    while(aux->linhaDe != -1) {
+        if(aux->linhaDe != -1){
+            printf("%d %d - %d %d\n", aux->linhaDe, aux->colunaDe, aux->linhaPara, aux->colunaPara);
         }
-        jogadasPossiveis = jogadasPossiveis->prox;
+        aux = aux->prox;
     }
     fflush(stdin);
     getchar();
