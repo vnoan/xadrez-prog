@@ -762,6 +762,29 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
     return movimentos;
 }
 
+int VerificaJogada(struct Jogada* jogada, struct Jogada* jogadasPossiveis){
+    do {
+        if(jogadasPossiveis->linhaDe != -1){
+            printf("%d %d - %d %d\n", jogadasPossiveis->linhaDe, jogadasPossiveis->colunaDe, jogadasPossiveis->linhaPara, jogadasPossiveis->colunaPara);
+        }
+        jogadasPossiveis = jogadasPossiveis->prox;
+    }
+    while(jogadasPossiveis->linhaDe != -1);
+
+    do {
+        printf("Digite outra posição:\n");
+        fflush(stdin);
+        printf("Linha: ");
+        scanf("%d", &jogada->linhaPara);
+        fflush(stdin);
+        printf("Coluna: ");
+        scanf("%d", &jogada->colunaPara);
+    }
+    while ((jogada->linhaDe < 0 || jogada->linhaDe > 7 ||
+            jogada->colunaDe < 0 || jogada->colunaDe > 7));
+    return 1;
+}
+
 void Jogo(struct Posicao tabuleiro)
 {
     setlocale(LC_ALL, "Portuguese");
@@ -775,7 +798,8 @@ void Jogo(struct Posicao tabuleiro)
     printf("Coluna: ");
     scanf("%d", &jogada->colunaDe);
     while ((jogada->linhaDe < 0 || jogada->linhaDe > 7 ||
-            jogada->colunaDe < 0 || jogada->colunaDe > 7))
+            jogada->colunaDe < 0 || jogada->colunaDe > 7) ||
+            tabuleiro.tab[jogada->linhaDe][jogada->colunaDe] == 0)
     {
         printf("Digite outra posição:\n");
         fflush(stdin);
@@ -785,13 +809,8 @@ void Jogo(struct Posicao tabuleiro)
         printf("Coluna: ");
         scanf("%d", &jogada->colunaDe);
     };
+    VerificaJogada(jogada, jogadasPossiveis);
 
-    while(jogadasPossiveis->prox->linhaDe != -1) {
-        if(jogadasPossiveis->linhaDe != -1){
-            printf("%d %d - %d %d\n", jogadasPossiveis->linhaDe, jogadasPossiveis->colunaDe, jogadasPossiveis->linhaPara, jogadasPossiveis->colunaPara);
-        }
-        jogadasPossiveis = jogadasPossiveis->prox;
-    }
     fflush(stdin);
     getchar();
 	system("cls");
