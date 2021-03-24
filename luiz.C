@@ -133,7 +133,6 @@ void RemovePeca(struct Peca* lista, int linha, int coluna){
         aux->prox->ant = aux->ant;
         aux->ant->prox = aux->prox;
         free(aux);
-        printf("deletando peca");
     }
 }
 
@@ -807,11 +806,11 @@ int ExecutaJogada(struct Posicao *posAtual, struct Jogada* jogada){
 
         if(posAtual->jogVez == 1) {
             RemovePeca(posAtual->pretas, jogada->linhaPara, jogada->colunaPara);
-            posAtual->pretas--;
+            posAtual->qtdPretas--;
         }
         else{
             RemovePeca(posAtual->brancas, jogada->linhaPara, jogada->colunaPara);
-            posAtual->brancas--;
+            posAtual->qtdBrancas--;
         }
 
     }
