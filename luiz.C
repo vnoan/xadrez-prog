@@ -201,6 +201,12 @@ struct Jogada* peao(struct Jogada* movimentos, struct Peca* p, struct Peca* tabu
             movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), (p->coluna+1));
             tabuleiro[p->linha+p->codigo][p->coluna+1]->ataques++;
         }
+        if(p->codigo<0 && p->linha==6 && tabuleiro[p->linha-2][p->coluna]==NULL){
+          movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, (p->linha-2), (p->coluna));
+        }
+        if(p->codigo>0 && p->linha==1 && tabuleiro[p->linha+2][p->coluna]==NULL){
+          movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, (p->linha+2), (p->coluna));
+        }
     }
     return movimentos;
 }
@@ -348,7 +354,7 @@ struct Jogada* bispo(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             }
         }
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+k][p->coluna-k]==NULL);
+    while(p->linha+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+k][p->coluna-k]==NULL);
     /*ja fiz a diagonal superior esquerda, o resto eh a mesma estrutura, a torre é bem semelhante ao bispo*/
 
     //Diagonal superior direita
@@ -369,7 +375,7 @@ struct Jogada* bispo(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             }
         }
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+k][p->coluna+k]==NULL);
+    while(p->linha+k<8 && p->linha+k<8 && tabuleiro[p->linha+k][p->coluna+k]==NULL);
 
     //Diagonal inferior esquerda
     k=0;
@@ -389,7 +395,7 @@ struct Jogada* bispo(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             }
         }
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha-k][p->coluna-k]==NULL);
+    while(p->linha-k>=0 && p->linha-k>=0 && tabuleiro[p->linha-k][p->coluna-k]==NULL);
 
     //Diagonal inferior direita
     k=0;
@@ -409,7 +415,7 @@ struct Jogada* bispo(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             }
         }
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha-k][p->coluna+k]==NULL);
+    while(p->linha-k>=0 && p->coluna+k<8 && tabuleiro[p->linha-k][p->coluna+k]==NULL);
 
     return movimentos;
 }
@@ -419,25 +425,6 @@ struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
 {
     int k = 0;
     do //Cima
-    {
-        k++;
-        if(p->coluna+k<8)
-        {
-            if(tabuleiro[p->linha][p->coluna+k]!=NULL && tabuleiro[p->linha][p->coluna+k]->codigo*p->codigo<0)
-            {
-                tabuleiro[p->linha][p->coluna+k]->ataques++;
-                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha,p->coluna+k);
-            }
-            else if(tabuleiro[p->linha][p->coluna+k]==NULL)
-            {
-                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha,p->coluna+k);
-            }
-        }
-    }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha][p->coluna+k]==NULL);
-
-    k = 0;
-    do //Direita
     {
         k++;
         if(p->linha+k<8)
@@ -453,29 +440,29 @@ struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             }
         }
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+k][p->coluna]==NULL);
+    while(p->linha+k<8 && tabuleiro[p->linha+k][p->coluna]==NULL);
 
     k = 0;
-    do //Baixo
+    do //Direita
     {
         k++;
-        if(p->coluna-k>=0)
+        if(p->coluna+k<8)
         {
-            if(tabuleiro[p->linha][p->coluna-k]!=NULL && tabuleiro[p->linha][p->coluna-k]->codigo*p->codigo<0)
+            if(tabuleiro[p->linha][p->coluna+k]!=NULL && tabuleiro[p->linha][p->coluna+k]->codigo*p->codigo<0)
             {
-                tabuleiro[p->linha][p->coluna-k]->ataques++;
-                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha,p->coluna-k);
+                tabuleiro[p->linha][p->coluna+k]->ataques++;
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha,p->coluna+k);
             }
-            else if(tabuleiro[p->linha][p->coluna-k]==NULL)
+            else if(tabuleiro[p->linha][p->coluna+k]==NULL)
             {
-                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha,p->coluna-k);
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha,p->coluna+k);
             }
         }
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha][p->coluna-k]==NULL);
+    while(p->coluna+k<8 && tabuleiro[p->linha][p->coluna+k]==NULL);
 
     k = 0;
-    do //Esquerda
+    do //Baixo
     {
         k++;
         if(p->linha-k>=0)
@@ -491,7 +478,26 @@ struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             }
         }
     }
-    while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha-k][p->coluna]==NULL);
+    while(p->linha-k>=0 && tabuleiro[p->linha-k][p->coluna]==NULL);
+
+    k = 0;
+    do //Esquerda
+    {
+        k++;
+        if(p->coluna-k>=0)
+        {
+            if(tabuleiro[p->linha][p->coluna-k]!=NULL && tabuleiro[p->linha][p->coluna-k]->codigo*p->codigo<0)
+            {
+                tabuleiro[p->linha][p->coluna-k]->ataques++;
+                movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha,p->coluna-k);
+            }
+            else if(tabuleiro[p->linha][p->coluna-k]==NULL)
+            {
+                movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha,p->coluna-k);
+            }
+        }
+    }
+    while(p->linha-k>=0 && tabuleiro[p->linha-k][p->coluna]==NULL);
 
     return movimentos;
 }
@@ -646,10 +652,6 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
     }
 
     if(p->coluna > 0){
-        k = 0;
-        do
-        {
-            k++;
             if(p->linha+1<8 && p->coluna-1>=0)
             {
                 if(tabuleiro[p->linha+1][p->coluna-1]!=NULL && tabuleiro[p->linha+1][p->coluna-1]->codigo*p->codigo<0)
@@ -663,8 +665,8 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
                 }
             }
         }
-        while(p->linha+k<8 && p->linha-k>=0 && p->coluna+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+1][p->coluna-1]==NULL);
-    }
+  
+    
 
     return movimentos;
 }
@@ -800,7 +802,7 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
 int ExecutaJogada(struct Posicao *posAtual, struct Jogada* jogada){
 
     if (posAtual->tab[jogada->linhaPara][jogada->colunaPara] != NULL){
-        if(posAtual->tab[jogada->linhaPara][jogada->colunaPara]->codigo == 6) {
+        if(abs(posAtual->tab[jogada->linhaPara][jogada->colunaPara]->codigo) == 6) {
             return 1;
         }
 
@@ -833,15 +835,23 @@ bool VerificaJogada(struct Jogada* jogada, struct Jogada* jogadasPossiveis){
         aux = aux->prox;
     }
 
-    printf("\nJogada Invalida\nOpcoes para esta peca: \n");
+    printf("\nJogada Invalida!");
     aux = jogadasPossiveis->prox;
+    
+
+    return false;
+}
+bool VerificaJogada2(int* linha, int* coluna, struct Jogada* jogadasPossiveis){
+    struct Jogada *aux = jogadasPossiveis->prox;
     while(aux->linhaDe != -1) {
-        if(aux->linhaDe == jogada->linhaDe && aux->colunaDe == jogada->colunaDe) {
-            printf("L:%d C:%d -> L:%d C:%d\n", aux->linhaDe, aux->colunaDe, aux->linhaPara, aux->colunaPara);
-        }
+        if(aux->linhaDe == *linha && aux->colunaDe == *coluna) {
+            return true;
+       }
         aux = aux->prox;
     }
 
+    printf("\nVoce nao pode mover esta peca!");
+    aux = jogadasPossiveis->prox;
     return false;
 }
 
@@ -872,13 +882,13 @@ void Jogo(struct Posicao posAtual)
     struct Jogada *jogada = (struct Jogada*) malloc(sizeof(struct Jogada));
 
     do {
+        printf("Jogador da vez: %s(%d)\n", posAtual.jogVez == 1 ? "branco" : "preto", posAtual.jogVez);
         jogadasPossiveis = CalculaMovimentosPossiveis(posAtual);
         Desenha(posAtual);
-
-
-        printf("Jogador da vez: %s(%d)\n", posAtual.jogVez == 1 ? "branco" : "preto", posAtual.jogVez);
-        printf("\nQual peça você quer mover?\n");
+        do{
+          printf("\nQual peça você quer mover?\n");
         PegaEscolha(&jogada->linhaDe, &jogada->colunaDe);
+        }while(!VerificaJogada2(&jogada->linhaDe, &jogada->colunaDe, jogadasPossiveis));
         while(posAtual.tab[jogada->linhaDe][jogada->colunaDe] == NULL ||
               ((posAtual.tab[jogada->linhaDe][jogada->colunaDe]->codigo > 0 && posAtual.jogVez < 0) ||
                (posAtual.tab[jogada->linhaDe][jogada->colunaDe]->codigo < 0 && posAtual.jogVez > 0))) {
@@ -898,8 +908,13 @@ void Jogo(struct Posicao posAtual)
         jogadasPossiveis = LiberaListaJogada(jogadasPossiveis);
     }
     while(ExecutaJogada(&posAtual, jogada) == 0);
-    posAtual.jogVez = -1 * posAtual.jogVez; //Desinverte a vez
-    printf("\nVitoria do jogador %s!", posAtual.jogVez == 1 ? "branco" : "preto", posAtual.jogVez);
+    posAtual.jogVez = -1 * posAtual.jogVez;
+    //Desinverte a vez
+    if(posAtual.jogVez==1){
+      printf("\nVitória do jogador de Brancas");
+    } else{
+      printf("\nVitória do jogador de Pretas");
+    }
     fflush(stdin);
     getchar();
 }
