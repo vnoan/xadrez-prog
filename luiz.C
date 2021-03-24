@@ -29,7 +29,31 @@ struct  Jogada
     struct Jogada *prox, *ant;
 };
 
-struct Peca* CriaListaPeca() {
+struct Peca* LiberaListaPeca(struct Peca* lista){
+    struct Peca* aux = lista;
+    lista->ant->prox = NULL;
+    while(aux != NULL){
+        lista= lista->prox;
+        free(aux);
+        aux = lista;
+    }
+    return NULL;
+};
+
+struct Jogada* LiberaListaJogada(struct Jogada* lista)
+{
+    struct Jogada* aux = lista;
+    lista->ant->prox = NULL;
+    while(aux != NULL){
+        lista= lista->prox;
+        free(aux);
+        aux = lista;
+    }
+    return NULL;
+};
+
+struct Peca* CriaListaPeca()
+{
     struct Peca* sentinela = (struct Peca*) malloc(sizeof(struct Peca));
     sentinela->prox = sentinela;
     sentinela->ant = sentinela;
@@ -37,7 +61,8 @@ struct Peca* CriaListaPeca() {
     return sentinela;
 };
 
-struct Jogada* CriaListaJogada() {
+struct Jogada* CriaListaJogada()
+{
     struct Jogada* sentinela = (struct Jogada*) malloc(sizeof(struct Jogada*));
     sentinela->prox = sentinela;
     sentinela->ant = sentinela;
@@ -53,6 +78,7 @@ struct Peca* InsereInicioPeca(struct Peca* sentinela, int codigo, int linha, int
     novo->coluna=coluna;
     novo->codigo=codigo;
     novo->ataques=ataques;
+    /*
     if(sentinela==NULL)
     {
         sentinela = (struct Peca*) malloc(sizeof(struct Peca));
@@ -63,13 +89,14 @@ struct Peca* InsereInicioPeca(struct Peca* sentinela, int codigo, int linha, int
         novo->ant=sentinela;
         return novo;
     }
+    */
     novo->prox=sentinela->prox;
     novo->ant=sentinela;
     sentinela->prox->ant=novo;
     sentinela->prox=novo;
-    //sentinela=novo;
     return novo;
 }
+
 struct Jogada* InsereInicioJogada(struct Jogada* sentinela, int linhaDe, int colunaDe, int linhaPara, int colunaPara)
 {
     struct Jogada* novo = (struct Jogada*)malloc(sizeof(struct Jogada));
@@ -77,6 +104,7 @@ struct Jogada* InsereInicioJogada(struct Jogada* sentinela, int linhaDe, int col
     novo->colunaDe=colunaDe;
     novo->linhaPara=linhaPara;
     novo->colunaPara=colunaPara;
+    /*
     if(sentinela==NULL)
     {
         sentinela = (struct Jogada*) malloc(sizeof(struct Jogada));
@@ -88,13 +116,14 @@ struct Jogada* InsereInicioJogada(struct Jogada* sentinela, int linhaDe, int col
         novo->ant=sentinela;
         return novo;
     }
+    */
     novo->prox=sentinela->prox;
     novo->ant=sentinela;
     sentinela->prox->ant=novo;
     sentinela->prox=novo;
-    //sentinela=novo;
     return sentinela;
 }
+
 struct Posicao IniciaTabuleiro()
 {
     int i, j;
@@ -141,21 +170,25 @@ struct Posicao IniciaTabuleiro()
 
 }
 
+//Inicio das funções de jogadas de peças
 struct Jogada* peao(struct Jogada* movimentos, struct Peca* p, struct Peca* tabuleiro[8][8])
 {
     if((p->linha+p->codigo)>=0 && (p->linha+p->codigo)<=7)
-    {
+    {            printf("%d %d\n", p->linha,p->coluna);//1 2
         if(tabuleiro[p->linha+p->codigo][p->coluna]==NULL)
         {
             movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), p->coluna);
         }
         if(tabuleiro[p->linha+p->codigo][p->coluna-1]!=NULL && p->coluna>0 && (tabuleiro[p->linha+p->codigo][p->coluna-1]->codigo*p->codigo)<0)
         {
+            printf("teste 2");
             movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), (p->coluna-1));
             tabuleiro[p->linha+p->codigo][p->coluna-1]->ataques++;
         }
-        if(tabuleiro[p->linha+p->codigo][p->coluna-1]!=NULL && p->coluna<7 && (tabuleiro[p->linha+p->codigo][p->coluna+1]->codigo*p->codigo)<0)
+        //if(p->linha == 1 && p->coluna == 2) printf("%d \n", tabuleiro[p->linha+p->codigo][p->coluna+1]);
+        if(tabuleiro[p->linha+p->codigo][p->coluna+1]!=NULL && p->coluna<7 && (tabuleiro[p->linha+p->codigo][p->coluna+1]->codigo*p->codigo)<0)
         {
+            printf("teste 3");
             movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, (p->linha+p->codigo), (p->coluna+1));
             tabuleiro[p->linha+p->codigo][p->coluna+1]->ataques++;
         }
@@ -163,7 +196,6 @@ struct Jogada* peao(struct Jogada* movimentos, struct Peca* p, struct Peca* tabu
     return movimentos;
 }
 
-//Inicio das funções de jogadas de peças
 struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* tabuleiro[8][8])
 {
     if(p->linha<6)
@@ -711,12 +743,15 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
     }
     while(aux!=PosAtual.pretas);
 
+    //1 é branco
     if(PosAtual.jogVez==1)
     {
+        printf("brancas 1\n");
         aux=PosAtual.brancas;
     }
     else
-    {
+    {//-1 é preto
+        printf("pretas 1\n");
         aux=PosAtual.pretas;
     }
 
@@ -727,22 +762,28 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
         switch (abs(aux->codigo))
         {
         case 1: case -1:
+            printf("peao\n");
             movimentos=peao(movimentos, aux, PosAtual.tab);
             break;
         case 2: case -2:
+            printf("cavalo\n");
             movimentos=cavalo(movimentos, aux, PosAtual.tab);
             break;
         case 3: case -3:
+            printf("bispo\n");
             movimentos=bispo(movimentos, aux, PosAtual.tab);
             break;
         case 4: case -4:
+            printf("torre\n");
             movimentos=torre(movimentos, aux, PosAtual.tab);
             break;
         case 5: case -5:
+            printf("rainha\n");
             movimentos=torre(movimentos, aux, PosAtual.tab);
             movimentos=bispo(movimentos, aux, PosAtual.tab);
             break;
         case 6: case -6:
+            printf("rei\n");
             movimentos=rei(movimentos, aux, PosAtual.tab);
             break;
 
@@ -763,8 +804,19 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
     return movimentos;
 }
 
-int ExecutaJogada(){
-    if()
+// 1 é branco
+// -1 é preto
+int ExecutaJogada(struct Posicao *posAtual, struct Jogada* jogada){
+    //struct Peca* peDe = posAtual->tab[jogada->linhaDe][jogada->colunaDe];
+    //struct Peca* pePara = posAtual->tab[jogada->linhaPara][jogada->colunaPara];
+
+    posAtual->tab[jogada->linhaPara][jogada->colunaPara] = posAtual->tab[jogada->linhaDe][jogada->colunaDe];
+    posAtual->tab[jogada->linhaPara][jogada->colunaPara]->linha = jogada->linhaPara;
+    posAtual->tab[jogada->linhaPara][jogada->colunaPara]->coluna = jogada->colunaPara;
+    posAtual->tab[jogada->linhaDe][jogada->colunaDe] = NULL;
+
+    //Desenha(posAtual);
+    return 0;
 }
 
 bool VerificaJogada(struct Jogada* jogada, struct Jogada* jogadasPossiveis){
@@ -777,14 +829,15 @@ bool VerificaJogada(struct Jogada* jogada, struct Jogada* jogadasPossiveis){
         aux = aux->prox;
     }
 
-    aux = jogadasPossiveis->prox;
     printf("\nJogada Invalida\nOpcoes para esta peca: \n");
+    aux = jogadasPossiveis->prox;
     while(aux->linhaDe != -1) {
         if(aux->linhaDe == jogada->linhaDe && aux->colunaDe == jogada->colunaDe) {
-             printf("L:%d C:%d -> L:%d C:%d\n", aux->linhaDe, aux->colunaDe, aux->linhaPara, aux->colunaPara);
-       }
-    aux = aux->prox;
+            printf("L:%d C:%d -> L:%d C:%d\n", aux->linhaDe, aux->colunaDe, aux->linhaPara, aux->colunaPara);
+        }
+        aux = aux->prox;
     }
+
     return false;
 }
 
@@ -811,11 +864,13 @@ void Jogo(struct Posicao posAtual)
 {
     setlocale(LC_ALL, "Portuguese");
 
-    struct Jogada *jogadasPossiveis = CalculaMovimentosPossiveis(posAtual);
+    struct Jogada *jogadasPossiveis;
     struct Jogada *jogada = (struct Jogada*) malloc(sizeof(struct Jogada));
 
     do {
+        jogadasPossiveis = CalculaMovimentosPossiveis(posAtual);
         Desenha(posAtual);
+        printf("Jogador da vez: %d\n", posAtual.jogVez);
         printf("\nQual peça você quer mover?\n");
         PegaEscolha(&jogada->linhaDe, &jogada->colunaDe);
         while(posAtual.tab[jogada->linhaDe][jogada->colunaDe] == 0){
@@ -830,14 +885,15 @@ void Jogo(struct Posicao posAtual)
             PegaEscolha(&jogada->linhaPara, &jogada->colunaPara);
         }
         system("cls");
+        posAtual.jogVez = -1 * posAtual.jogVez;
+
+        jogadasPossiveis = LiberaListaJogada(jogadasPossiveis);
     }
-    while(ExecutaJogada() == 0);
+    while(ExecutaJogada(&posAtual, jogada) == 0);
 
-
+    printf("\nSaindo");
     fflush(stdin);
     getchar();
-
-
 }
 
 int main()
@@ -847,82 +903,3 @@ int main()
 
     return 0;
 }
-
-/*
-void jogo(int tabuleiro[8][8])
-{
-	int tabuleiro_temporario[8][8];
-	setlocale(LC_ALL, "Portuguese");
-	typedef struct
-	{
-		int linhaDe, colunaDe, linhaPara, colunaPara;
-	} jogada;
-	mostra_jogo(tabuleiro);
-	jogada player1;
-	printf("\nQual peça você quer mover?(Informe a linha e em seguida a  coluna):\n");
-	scanf("%d", &player1.linhaDe);
-	fflush(stdin);
-	scanf("%d", &player1.colunaDe);
-	while ((player1.linhaDe < 0 || player1.linhaDe > 7 ||
-					player1.colunaDe < 0 || player1.colunaDe > 7) ||
-				 tabuleiro[player1.linhaDe][player1.colunaDe] == 0)
-	{
-		printf("Digite outra posição:\n");
-		fflush(stdin);
-		scanf("%d", &player1.linhaDe);
-		scanf("%d", &player1.colunaDe);
-	};
-	for (int i = 0; i < 8; i++)
-	{
-		for (int j = 0; j < 8; j++)
-		{
-			tabuleiro_temporario[i][j] = tabuleiro[i][j];
-		}
-	}
-	int resposta = possibilidades(player1.linhaDe, player1.colunaDe, tabuleiro[player1.linhaDe][player1.colunaDe], tabuleiro, tabuleiro_temporario);
-	if (resposta == 1)
-	{
-		printf("Suas possibilidades estão marcadas no tabuleiro, escolha uma delas(Informe a linha e em seguida a  coluna):\n");
-
-		scanf("%d", &player1.linhaPara);
-
-		fflush(stdin);
-		scanf("%d", &player1.colunaPara);
-
-		while (
-				(player1.linhaPara < 0 || player1.linhaPara > 7 ||
-				 player1.colunaPara < 0 || player1.colunaPara > 7) ||
-				tabuleiro_temporario[player1.linhaPara][player1.colunaPara] < 7)
-		{
-			printf("Faça um movimento válido.\n");
-
-			fflush(stdin);
-			scanf("%d", &player1.linhaPara);
-			scanf("%d", &player1.colunaPara);
-		}
-		system("cls");
-		int fim = mover(player1.linhaDe, player1.colunaDe, player1.linhaPara, player1.colunaPara, tabuleiro);
-		if (fim == 0)
-		{
-			jogo(tabuleiro);
-		}
-		else if (fim == -1)
-		{
-			mostra_jogo(tabuleiro);
-			printf("\nFim de Jogo\nVencedor:Player2");
-		}
-		else if (fim == 1)
-		{
-			mostra_jogo(tabuleiro);
-			printf("\nFim de Jogo\nVencedor:Player1");
-		}
-	}
-	else if (resposta == 0)
-	{
-		system("cls");
-		printf("Não há jogadas possíveis para esta peça.\n");
-		jogo(tabuleiro);
-	}
-}
-
-*/
