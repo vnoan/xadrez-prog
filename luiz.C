@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <locale.h>
+#include <stdbool.h>
 #define ROXO "\x1B[35m"
 #define AZUL "\x1B[34m"
 #define RESET "\x1B[0m"
@@ -762,73 +763,87 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
     return movimentos;
 }
 
-int VerificaJogada(struct Jogada* jogada, struct Jogada* jogadasPossiveis){
-    do {
-        if(jogadasPossiveis->linhaDe != -1){
-            printf("%d %d - %d %d\n", jogadasPossiveis->linhaDe, jogadasPossiveis->colunaDe, jogadasPossiveis->linhaPara, jogadasPossiveis->colunaPara);
-        }
-        jogadasPossiveis = jogadasPossiveis->prox;
-    }
-    while(jogadasPossiveis->linhaDe != -1);
-
-    do {
-        printf("Digite outra posição:\n");
-        fflush(stdin);
-        printf("Linha: ");
-        scanf("%d", &jogada->linhaPara);
-        fflush(stdin);
-        printf("Coluna: ");
-        scanf("%d", &jogada->colunaPara);
-    }
-    while ((jogada->linhaDe < 0 || jogada->linhaDe > 7 ||
-            jogada->colunaDe < 0 || jogada->colunaDe > 7));
-    return 1;
+int ExecutaJogada(){
+    if()
 }
 
-void Jogo(struct Posicao tabuleiro)
-{
-    setlocale(LC_ALL, "Portuguese");
-    Desenha(tabuleiro);
-    struct Jogada *jogadasPossiveis = CalculaMovimentosPossiveis(tabuleiro);
-    struct Jogada *jogada = (struct Jogada*) malloc(sizeof(struct Jogada));
-    printf("\nQual peça você quer mover?\n");
+bool VerificaJogada(struct Jogada* jogada, struct Jogada* jogadasPossiveis){
+    struct Jogada *aux = jogadasPossiveis->prox;
+    while(aux->linhaDe != -1) {
+        if(aux->linhaDe == jogada->linhaDe && aux->colunaDe == jogada->colunaDe &&
+           aux->linhaPara == jogada->linhaPara && aux->colunaPara == jogada->colunaPara ) {
+            return true;
+       }
+        aux = aux->prox;
+    }
+
+    aux = jogadasPossiveis->prox;
+    printf("\nJogada Invalida\nOpcoes para esta peca: \n");
+    while(aux->linhaDe != -1) {
+        if(aux->linhaDe == jogada->linhaDe && aux->colunaDe == jogada->colunaDe) {
+             printf("L:%d C:%d -> L:%d C:%d\n", aux->linhaDe, aux->colunaDe, aux->linhaPara, aux->colunaPara);
+       }
+    aux = aux->prox;
+    }
+    return false;
+}
+
+void PegaEscolha(int *linha, int* coluna) {
+    //Funcao para garatir que a escolha está dentro do tabuleiro
     printf("Linha: ");
-    scanf("%d", &jogada->linhaDe);
+    scanf("%d", linha);
     fflush(stdin);
     printf("Coluna: ");
-    scanf("%d", &jogada->colunaDe);
-    while ((jogada->linhaDe < 0 || jogada->linhaDe > 7 ||
-            jogada->colunaDe < 0 || jogada->colunaDe > 7) ||
-            tabuleiro.tab[jogada->linhaDe][jogada->colunaDe] == 0)
+    scanf("%d", coluna);
+    while (*linha < 0 || *linha > 8 || *coluna < 0|| *coluna > 8)
     {
         printf("Digite outra posição:\n");
         fflush(stdin);
         printf("Linha: ");
-        scanf("%d", &jogada->linhaDe);
+        scanf("%d", linha);
         fflush(stdin);
         printf("Coluna: ");
-        scanf("%d", &jogada->colunaDe);
+        scanf("%d", coluna);
     };
-    VerificaJogada(jogada, jogadasPossiveis);
+}
 
-    struct Jogada *aux = jogadasPossiveis->prox;
+void Jogo(struct Posicao posAtual)
+{
+    setlocale(LC_ALL, "Portuguese");
 
-    while(aux->linhaDe != -1) {
-        if(aux->linhaDe != -1){
-            printf("%d %d - %d %d\n", aux->linhaDe, aux->colunaDe, aux->linhaPara, aux->colunaPara);
+    struct Jogada *jogadasPossiveis = CalculaMovimentosPossiveis(posAtual);
+    struct Jogada *jogada = (struct Jogada*) malloc(sizeof(struct Jogada));
+
+    do {
+        Desenha(posAtual);
+        printf("\nQual peça você quer mover?\n");
+        PegaEscolha(&jogada->linhaDe, &jogada->colunaDe);
+        while(posAtual.tab[jogada->linhaDe][jogada->colunaDe] == 0){
+            printf("Digite outra posição:\n");
+            PegaEscolha(&jogada->linhaDe, &jogada->colunaDe);
         }
-        aux = aux->prox;
+
+        printf("\nPara qual posicao você quer mover?\n");
+        PegaEscolha(&jogada->linhaPara, &jogada->colunaPara);
+        while(!VerificaJogada(jogada, jogadasPossiveis)){
+            printf("\nDigite outra posição:\n");
+            PegaEscolha(&jogada->linhaPara, &jogada->colunaPara);
+        }
+        system("cls");
     }
+    while(ExecutaJogada() == 0);
+
+
     fflush(stdin);
     getchar();
-	system("cls");
-	//Desenha();
+
+
 }
 
 int main()
 {
-    struct Posicao tabuleiro=IniciaTabuleiro();
-    Jogo(tabuleiro);
+    struct Posicao posAtual=IniciaTabuleiro();
+    Jogo(posAtual);
 
     return 0;
 }
