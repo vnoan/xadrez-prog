@@ -811,6 +811,14 @@ void Jogo(struct Posicao tabuleiro)
     };
     VerificaJogada(jogada, jogadasPossiveis);
 
+    struct Jogada *aux = jogadasPossiveis->prox;
+
+    while(aux->linhaDe != -1) {
+        if(aux->linhaDe != -1){
+            printf("%d %d - %d %d\n", aux->linhaDe, aux->colunaDe, aux->linhaPara, aux->colunaPara);
+        }
+        aux = aux->prox;
+    }
     fflush(stdin);
     getchar();
 	system("cls");
