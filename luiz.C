@@ -497,7 +497,7 @@ struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             }
         }
     }
-    while(p->linha-k>=0 && tabuleiro[p->linha-k][p->coluna]==NULL);
+    while(p->coluna-k>=0 && tabuleiro[p->linha][p->coluna-k]==NULL);
 
     return movimentos;
 }
