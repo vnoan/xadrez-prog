@@ -746,19 +746,17 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
     //1 é branco
     if(PosAtual.jogVez==1)
     {
-        printf("brancas 1\n");
         aux=PosAtual.brancas;
     }
     else
     {//-1 é preto
-        printf("pretas 1\n");
         aux=PosAtual.pretas;
     }
 
     struct Jogada* movimentos = CriaListaJogada();
     do
     {
-        //printf("para peca %d- \n",abs(aux->codigo));
+        printf("para peca %d- \n",abs(aux->codigo));
         switch (abs(aux->codigo))
         {
         case 1: case -1:
@@ -766,24 +764,19 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
             movimentos=peao(movimentos, aux, PosAtual.tab);
             break;
         case 2: case -2:
-            printf("cavalo\n");
             movimentos=cavalo(movimentos, aux, PosAtual.tab);
             break;
         case 3: case -3:
-            printf("bispo\n");
             movimentos=bispo(movimentos, aux, PosAtual.tab);
             break;
         case 4: case -4:
-            printf("torre\n");
             movimentos=torre(movimentos, aux, PosAtual.tab);
             break;
         case 5: case -5:
-            printf("rainha\n");
             movimentos=torre(movimentos, aux, PosAtual.tab);
             movimentos=bispo(movimentos, aux, PosAtual.tab);
             break;
         case 6: case -6:
-            printf("rei\n");
             movimentos=rei(movimentos, aux, PosAtual.tab);
             break;
 
@@ -799,7 +792,7 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
         */
 
     }
-    while(aux->prox->codigo != 0);
+    while(aux->codigo != 0);
 
     return movimentos;
 }
@@ -810,10 +803,16 @@ int ExecutaJogada(struct Posicao *posAtual, struct Jogada* jogada){
     //struct Peca* peDe = posAtual->tab[jogada->linhaDe][jogada->colunaDe];
     //struct Peca* pePara = posAtual->tab[jogada->linhaPara][jogada->colunaPara];
 
-    posAtual->tab[jogada->linhaPara][jogada->colunaPara] = posAtual->tab[jogada->linhaDe][jogada->colunaDe];
-    posAtual->tab[jogada->linhaPara][jogada->colunaPara]->linha = jogada->linhaPara;
-    posAtual->tab[jogada->linhaPara][jogada->colunaPara]->coluna = jogada->colunaPara;
-    posAtual->tab[jogada->linhaDe][jogada->colunaDe] = NULL;
+    if(posAtual->tab[jogada->linhaPara][jogada->colunaPara] == NULL){
+        posAtual->tab[jogada->linhaPara][jogada->colunaPara] = posAtual->tab[jogada->linhaDe][jogada->colunaDe];
+        posAtual->tab[jogada->linhaPara][jogada->colunaPara]->linha = jogada->linhaPara;
+        posAtual->tab[jogada->linhaPara][jogada->colunaPara]->coluna = jogada->colunaPara;
+        posAtual->tab[jogada->linhaDe][jogada->colunaDe] = NULL;
+    }
+    else if(posAtual->tab[jogada->linhaPara][jogada->colunaPara]->codigo == 6) {
+        return 1;
+    }
+
 
     //Desenha(posAtual);
     return 0;
@@ -870,10 +869,14 @@ void Jogo(struct Posicao posAtual)
     do {
         jogadasPossiveis = CalculaMovimentosPossiveis(posAtual);
         Desenha(posAtual);
-        printf("Jogador da vez: %d\n", posAtual.jogVez);
+
+
+        printf("Jogador da vez: %s(%d)\n", posAtual.jogVez == 1 ? "branco" : "preto", posAtual.jogVez);
         printf("\nQual peça você quer mover?\n");
         PegaEscolha(&jogada->linhaDe, &jogada->colunaDe);
-        while(posAtual.tab[jogada->linhaDe][jogada->colunaDe] == 0){
+        while(posAtual.tab[jogada->linhaDe][jogada->colunaDe] == NULL ||
+              ((posAtual.tab[jogada->linhaDe][jogada->colunaDe]->codigo > 0 && posAtual.jogVez < 0) ||
+               (posAtual.tab[jogada->linhaDe][jogada->colunaDe]->codigo < 0 && posAtual.jogVez > 0))) {
             printf("Digite outra posição:\n");
             PegaEscolha(&jogada->linhaDe, &jogada->colunaDe);
         }
@@ -890,8 +893,8 @@ void Jogo(struct Posicao posAtual)
         jogadasPossiveis = LiberaListaJogada(jogadasPossiveis);
     }
     while(ExecutaJogada(&posAtual, jogada) == 0);
-
-    printf("\nSaindo");
+    posAtual.jogVez = -1 * posAtual.jogVez; //Desinverte a vez
+    printf("\nVitoria do jogador %s!", posAtual.jogVez == 1 ? "branco" : "preto", posAtual.jogVez);
     fflush(stdin);
     getchar();
 }
