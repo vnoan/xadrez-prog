@@ -231,7 +231,7 @@ struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* ta
         {
             if(tabuleiro[p->linha+2][p->coluna-1]!=NULL && tabuleiro[p->linha+2][p->coluna-1]->codigo*p->codigo<0)
             {
-                tabuleiro[p->linha+2][p->coluna+1]->ataques++;
+                tabuleiro[p->linha+2][p->coluna-1]->ataques++;
                 movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha+2, p->coluna-1);
             }
             else if(tabuleiro[p->linha+2][p->coluna-1]==NULL)
@@ -303,7 +303,7 @@ struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* ta
                 tabuleiro[p->linha-1][p->coluna+2]->ataques++;
                 movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha-1, p->coluna+2);
             }
-            else if(tabuleiro[p->linha-2][p->coluna-1]==NULL)
+            else if(tabuleiro[p->linha-1][p->coluna+2]==NULL)
             {
                 movimentos=InsereInicioJogada(movimentos, p->linha, p->coluna, p->linha-1, p->coluna+2);
             }
@@ -805,7 +805,7 @@ bool VerificaJogada2(int* linha, int* coluna, struct Jogada* jogadasPossiveis){
         aux = aux->prox;
     }
 
-    printf("\nVoce nao pode mover esta peca!");
+    printf("\nVoce nao pode mover esta peca !");
     aux = jogadasPossiveis->prox;
     return false;
 }
