@@ -395,7 +395,7 @@ struct Jogada* bispo(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             }
         }
     }
-    while(p->linha-k>=0 && p->linha-k>=0 && tabuleiro[p->linha-k][p->coluna-k]==NULL);
+    while(p->linha-k>=0 && p->coluna-k>=0 && tabuleiro[p->linha-k][p->coluna-k]==NULL);
 
     //Diagonal inferior direita
     k=0;
@@ -505,9 +505,7 @@ struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
 struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabuleiro[8][8])
 {
     if(p->coluna < 7){
-        if(p->coluna+1<8)
-        {
-            if(tabuleiro[p->linha][p->coluna+1]!=NULL && tabuleiro[p->linha][p->coluna+1]->codigo*p->codigo<0)
+          if(tabuleiro[p->linha][p->coluna+1]!=NULL && tabuleiro[p->linha][p->coluna+1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha][p->coluna+1]->ataques++;
                 movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha,p->coluna+1);
@@ -516,12 +514,9 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             {
                 movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha,p->coluna+1);
             }
-        }
     }
 
     if(p->coluna < 7 && p->linha < 7){
-        if(p->linha+1<8 && p->coluna+1<8)
-        {
             if(tabuleiro[p->linha+1][p->coluna+1]!=NULL && tabuleiro[p->linha+1][p->coluna+1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha+1][p->coluna+1]->ataques++;
@@ -531,12 +526,9 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             {
                 movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna+1);
             }
-        }
     }
 
     if(p->linha < 7){
-        if(p->linha+1<8)
-        {
             if(tabuleiro[p->linha+1][p->coluna]!=NULL && tabuleiro[p->linha+1][p->coluna]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha+1][p->coluna]->ataques++;
@@ -546,12 +538,9 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             {
                 movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna);
             }
-        }
     }
 
     if(p->coluna > 0 && p->linha < 7){
-        if(p->linha+1<8 && p->coluna-1>=0)
-        {
             if(tabuleiro[p->linha+1][p->coluna-1]!=NULL && tabuleiro[p->linha+1][p->coluna-1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha+1][p->coluna-1]->ataques++;
@@ -561,12 +550,9 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             {
                 movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna-1);
             }
-        }
     }
 
     if(p->coluna > 0){
-        if(p->coluna-1>=0)
-        {
             if(tabuleiro[p->linha][p->coluna-1]!=NULL && tabuleiro[p->linha][p->coluna-1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha][p->coluna-1]->ataques++;
@@ -576,12 +562,9 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             {
                 movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha,p->coluna-1);
             }
-        }
     }
 
     if(p->coluna > 0 && p->linha > 0){
-        if(p->linha-1<8 && p->coluna-1>=0)
-        {
             if(tabuleiro[p->linha-1][p->coluna-1]!=NULL && tabuleiro[p->linha-1][p->coluna-1]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha-1][p->coluna-1]->ataques++;
@@ -591,12 +574,10 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             {
                 movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha-1,p->coluna-1);
             }
-        }
+        
     }
 
     if(p->linha > 0){
-        if(p->linha-1<8)
-        {
             if(tabuleiro[p->linha-1][p->coluna]!=NULL && tabuleiro[p->linha-1][p->coluna]->codigo*p->codigo<0)
             {
                 tabuleiro[p->linha-1][p->coluna]->ataques++;
@@ -606,10 +587,8 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             {
                 movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha-1,p->coluna);
             }
-        }
     }
 
-    if(p->coluna > 0){
         if(p->linha+1<8 && p->coluna-1>=0)
         {
             if(tabuleiro[p->linha+1][p->coluna-1]!=NULL && tabuleiro[p->linha+1][p->coluna-1]->codigo*p->codigo<0)
@@ -622,7 +601,6 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
                 movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+1,p->coluna-1);
             }
         }
-    }
     return movimentos;
 }
 //Fim das funções de jogada de peças
