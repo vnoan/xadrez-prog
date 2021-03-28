@@ -3,6 +3,8 @@
 #include <malloc.h>
 #include <locale.h>
 #include <stdbool.h>
+#include <windows.h>
+#include <unistd.h>
 #define ROXO "\x1B[35m"
 #define AZUL "\x1B[34m"
 #define RESET "\x1B[0m"
@@ -124,7 +126,8 @@ struct Jogada* InsereInicioJogada(struct Jogada* sentinela, int linhaDe, int col
     return sentinela;
 }
 
-void RemovePeca(struct Peca* lista, int linha, int coluna){
+void RemovePeca(struct Peca* lista, int linha, int coluna)
+{
     struct Peca* aux = lista->prox;
     while(aux != lista && aux->linha != linha && aux->coluna != coluna){
         aux = aux->prox;
@@ -423,6 +426,8 @@ struct Jogada* bispo(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
 //Torre
 struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tabuleiro[8][8])
 {
+
+    //printf("%d %d\n", tabuleiro[0][3]->codigo, tabuleiro[0][4]->codigo);
     int k = 0;
     do //Cima
     {
@@ -433,15 +438,18 @@ struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             {
                 tabuleiro[p->linha+k][p->coluna]->ataques++;
                 movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+k,p->coluna);
+                //printf("1 - %d %d\n", tabuleiro[0][3]->codigo, tabuleiro[0][4]->codigo);
             }
             else if(tabuleiro[p->linha+k][p->coluna]==NULL)
             {
                 movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+k,p->coluna);
+                //printf("2 - %d %d\n", tabuleiro[0][3]->codigo, tabuleiro[0][4]->codigo);
             }
         }
     }
     while(p->linha+k<8 && tabuleiro[p->linha+k][p->coluna]==NULL);
 
+    //printf("%d %d\n", tabuleiro[0][3]->codigo, tabuleiro[0][4]->codigo);
     k = 0;
     do //Direita
     {
@@ -461,6 +469,7 @@ struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
     }
     while(p->coluna+k<8 && tabuleiro[p->linha][p->coluna+k]==NULL);
 
+    //printf("%d %d\n", tabuleiro[0][3]->codigo, tabuleiro[0][4]->codigo);
     k = 0;
     do //Baixo
     {
@@ -480,6 +489,7 @@ struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
     }
     while(p->linha-k>=0 && tabuleiro[p->linha-k][p->coluna]==NULL);
 
+    //printf("%d %d\n", tabuleiro[0][3]->codigo, tabuleiro[0][4]->codigo);
     k = 0;
     do //Esquerda
     {
@@ -498,7 +508,7 @@ struct Jogada* torre(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
         }
     }
     while(p->coluna-k>=0 && tabuleiro[p->linha][p->coluna-k]==NULL);
-
+    //printf("--\n");
     return movimentos;
 }
 
@@ -574,7 +584,7 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
             {
                 movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha-1,p->coluna-1);
             }
-        
+
     }
 
     if(p->linha > 0){
@@ -650,11 +660,11 @@ void Desenha(struct Posicao PosAtual)
             }
             else
             {
-                if (PosAtual.tab[i][j]!=NULL && PosAtual.tab[i][j]->codigo < 0)
+                if (PosAtual.tab[i][j]->codigo < 0)
                 {
                     printf("|");
                 }
-                else if (PosAtual.tab[i][j]!=NULL && PosAtual.tab[i][j]->codigo > 0)
+                else if (PosAtual.tab[i][j]->codigo > 0)
                 {
                     printf("| ");
                 }
@@ -699,6 +709,7 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
     struct Jogada* movimentos = CriaListaJogada();
     do
     {
+        //printf("%d: %d %d\n",aux->codigo, PosAtual.tab[0][3]->codigo, PosAtual.tab[0][4]->codigo);
         switch (abs(aux->codigo))
         {
         case 1: case -1:
@@ -714,8 +725,11 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
             movimentos=torre(movimentos, aux, PosAtual.tab);
             break;
         case 5: case -5:
+            //printf("%d: %d %d\n",aux->codigo, PosAtual.tab[0][3]->codigo, PosAtual.tab[0][4]->codigo);
             movimentos=torre(movimentos, aux, PosAtual.tab);
+            //printf("%d: %d %d\n",aux->codigo, PosAtual.tab[0][3]->codigo, PosAtual.tab[0][4]->codigo);
             movimentos=bispo(movimentos, aux, PosAtual.tab);
+            //printf("-\n");
             break;
         case 6: case -6:
             movimentos=rei(movimentos, aux, PosAtual.tab);
@@ -770,7 +784,7 @@ bool VerificaJogada(struct Jogada* jogada, struct Jogada* jogadasPossiveis){
 
     printf("\nJogada Invalida!");
     aux = jogadasPossiveis->prox;
-    
+
 
     return false;
 }
@@ -817,37 +831,46 @@ void Jogo(struct Posicao posAtual)
     do {
         printf("Jogador da vez: %s(%d)\n", posAtual.jogVez == 1 ? "branco" : "preto", posAtual.jogVez);
         jogadasPossiveis = CalculaMovimentosPossiveis(posAtual);
+
+
         Desenha(posAtual);
+
         do{
-          printf("\nQual peça você quer mover?\n");
-        PegaEscolha(&jogada->linhaDe, &jogada->colunaDe);
+            printf("\nQual peça você quer mover?\n");
+            PegaEscolha(&jogada->linhaDe, &jogada->colunaDe);
         }while(!VerificaJogada2(&jogada->linhaDe, &jogada->colunaDe, jogadasPossiveis));
+
         while(posAtual.tab[jogada->linhaDe][jogada->colunaDe] == NULL ||
               ((posAtual.tab[jogada->linhaDe][jogada->colunaDe]->codigo > 0 && posAtual.jogVez < 0) ||
                (posAtual.tab[jogada->linhaDe][jogada->colunaDe]->codigo < 0 && posAtual.jogVez > 0))) {
             printf("Digite outra posição:\n");
             PegaEscolha(&jogada->linhaDe, &jogada->colunaDe);
         }
-
         printf("\nPara qual posicao você quer mover?\n");
         PegaEscolha(&jogada->linhaPara, &jogada->colunaPara);
         while(!VerificaJogada(jogada, jogadasPossiveis)){
             printf("\nDigite outra posição:\n");
             PegaEscolha(&jogada->linhaPara, &jogada->colunaPara);
         }
+        printf("calcular movimentos: %d %d\n",posAtual.tab[0][3]->codigo, posAtual.tab[0][4]->codigo);
+        sleep(1);
         system("cls");
+        printf("novo texto: %d %d\n",posAtual.tab[0][3]->codigo, posAtual.tab[0][4]->codigo);
+
         posAtual.jogVez = -1 * posAtual.jogVez;
 
         jogadasPossiveis = LiberaListaJogada(jogadasPossiveis);
     }
     while(ExecutaJogada(&posAtual, jogada) == 0);
-    posAtual.jogVez = -1 * posAtual.jogVez;
+
     //Desinverte a vez
+    posAtual.jogVez = -1 * posAtual.jogVez;
     if(posAtual.jogVez==1){
       printf("\nVitória do jogador de Brancas");
     } else{
       printf("\nVitória do jogador de Pretas");
     }
+
     fflush(stdin);
     getchar();
 }
