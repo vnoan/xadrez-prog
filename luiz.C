@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
@@ -773,34 +772,31 @@ int x=0;
     return x;
 }
 
-bool VerificaJogada(struct Jogada* jogada, struct Jogada* jogadasPossiveis){
+bool VerificaJogada(struct Jogada* jogada, struct Jogada* jogadasPossiveis, struct Posicao posAtual){
+    if(posAtual.tab[jogada->linhaDe][jogada->colunaDe] == NULL ||
+        ((posAtual.tab[jogada->linhaDe][jogada->colunaDe]->codigo > 0 && posAtual.jogVez < 0) ||
+         (posAtual.tab[jogada->linhaDe][jogada->colunaDe]->codigo < 0 && posAtual.jogVez > 0))) {
+        printf("\nVocê não tem peça nesta posição!");
+        return false;
+    }
+
     struct Jogada *aux = jogadasPossiveis->prox;
+    bool temMovimento = false;
     while(aux->linhaDe != -1) {
         if(aux->linhaDe == jogada->linhaDe && aux->colunaDe == jogada->colunaDe &&
            aux->linhaPara == jogada->linhaPara && aux->colunaPara == jogada->colunaPara ) {
-            return true;
+            temMovimento = true;
        }
         aux = aux->prox;
     }
 
-    printf("\nJogada Invalida!");
-    aux = jogadasPossiveis->prox;
-
-
-    return false;
-}
-bool VerificaJogada2(int* linha, int* coluna, struct Jogada* jogadasPossiveis){
-    struct Jogada *aux = jogadasPossiveis->prox;
-    while(aux->linhaDe != -1) {
-        if(aux->linhaDe == *linha && aux->colunaDe == *coluna) {
-            return true;
-       }
-        aux = aux->prox;
+    if(!temMovimento){
+        printf("\nJogada Invalida!");
+        return false;
     }
 
-    printf("\nVoce nao pode mover esta peca !");
     aux = jogadasPossiveis->prox;
-    return false;
+    return true;
 }
 
 void PegaEscolha(int *linha, int* coluna) {
@@ -824,8 +820,8 @@ void PegaEscolha(int *linha, int* coluna) {
 
 void Jogo(struct Posicao posAtual)
 {
-	        	system("cls");
-    setlocale(LC_ALL, "Portuguese");
+    system("cls");
+    setlocale(LC_ALL, "portuguese");
 
     struct Jogada *jogadasPossiveis;
     struct Jogada *jogada = (struct Jogada*) malloc(sizeof(struct Jogada));
@@ -834,26 +830,15 @@ void Jogo(struct Posicao posAtual)
         printf("Jogador da vez: %s(%d)\n", posAtual.jogVez == 1 ? "branco" : "preto", posAtual.jogVez);
         jogadasPossiveis = CalculaMovimentosPossiveis(posAtual);
 
-
         Desenha(posAtual);
 
         do{
             printf("\nQual peça você quer mover?\n");
             PegaEscolha(&jogada->linhaDe, &jogada->colunaDe);
-        }while(!VerificaJogada2(&jogada->linhaDe, &jogada->colunaDe, jogadasPossiveis));
-
-        while(posAtual.tab[jogada->linhaDe][jogada->colunaDe] == NULL ||
-              ((posAtual.tab[jogada->linhaDe][jogada->colunaDe]->codigo > 0 && posAtual.jogVez < 0) ||
-               (posAtual.tab[jogada->linhaDe][jogada->colunaDe]->codigo < 0 && posAtual.jogVez > 0))) {
-            printf("Digite outra posição:\n");
-            PegaEscolha(&jogada->linhaDe, &jogada->colunaDe);
-        }
-        printf("\nPara qual posicao você quer mover?\n");
-        PegaEscolha(&jogada->linhaPara, &jogada->colunaPara);
-        while(!VerificaJogada(jogada, jogadasPossiveis)){
-            printf("\nDigite outra posição:\n");
+            printf("\nPara qual posicao você quer mover?\n");
             PegaEscolha(&jogada->linhaPara, &jogada->colunaPara);
-        }
+        } while(!VerificaJogada(jogada, jogadasPossiveis, posAtual));
+
         jogadasPossiveis = LiberaListaJogada(jogadasPossiveis);
     }
     while(ExecutaJogada(&posAtual, jogada) == 0);
