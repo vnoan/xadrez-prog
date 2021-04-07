@@ -3,7 +3,7 @@
 #include <malloc.h>
 #include <locale.h>
 #include <stdbool.h>
-#include <windows.h>
+//#include <windows.h>
 #include <unistd.h>
 #define ROXO "\x1B[35m"
 #define AZUL "\x1B[34m"
@@ -65,7 +65,7 @@ struct Peca* CriaListaPeca()
 
 struct Jogada* CriaListaJogada()
 {
-    struct Jogada* sentinela = (struct Jogada*) malloc(sizeof(struct Jogada*));
+    struct Jogada* sentinela = (struct Jogada*) malloc(sizeof(struct Jogada));
     sentinela->prox = sentinela;
     sentinela->ant = sentinela;
     sentinela->linhaDe = -1;
@@ -644,40 +644,6 @@ void ResetCor()
 {
     printf("\033[0m");
 }
-
-void Desenha(struct Posicao PosAtual)
-{
-    printf("\n\n\n\n\n");
-    int i, j;
-    for (i = 7; i > -1; i--)
-    {
-        printf("\t\t\t\t\t\t%d ", i);
-        for (j = 0; j < 8; j++)
-        {
-            if (PosAtual.tab[i][j] == NULL)
-            {
-                printf("|  ");
-            }
-            else
-            {
-                if (PosAtual.tab[i][j]->codigo < 0)
-                {
-                    printf("|");
-                }
-                else if (PosAtual.tab[i][j]->codigo > 0)
-                {
-                    printf("| ");
-                }
-                //AjustaCor(PosAtual.tab[i][j]->codigo);
-                printf("%d", PosAtual.tab[i][j]->codigo);
-                //ResetCor();
-            }
-        }
-        printf("|\n\t\t\t\t\t\t  -------------------------\n");
-    }
-    printf("\t\t\t\t\t\t    0  1  2  3  4  5  6  7\n");
-}
-
 struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
 {
     struct Peca* aux=PosAtual.brancas;
@@ -744,6 +710,152 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
     return movimentos;
 }
 
+double AvaliaPosicao(struct Posicao posAtual){
+	double resultado=0;
+	int A=posAtual.jogVez;
+	if(posAtual.jogVez==-1){
+		posAtual.jogVez=-1*posAtual.jogVez;
+	}
+	struct Jogada *JH=CalculaMovimentosPossiveis(posAtual);
+	struct Peca *aux=posAtual.pretas;
+	do{
+		switch (aux->codigo){
+			case -1:
+				resultado=resultado+0.5*(8-aux->linha);
+				if(aux->ataques>0){
+					resultado=resultado-0.4;
+				}
+				break;
+			case -2:
+				resultado=resultado+2;
+				if(aux->ataques>0){
+					resultado=resultado-1.5;
+				}
+				break;
+			case -3:
+				resultado=resultado+3;
+				if(aux->ataques>0){
+					resultado=resultado-2;
+				}
+				break;
+			case -4:
+				resultado=resultado+4;
+				if(aux->ataques>0){
+					resultado=resultado-3;
+				}
+				break;
+			case -5:
+				resultado=resultado+5;
+				if(aux->ataques>0){
+					resultado=resultado-4;
+				}
+				break;
+			case -6:
+				resultado=resultado+100;
+				if(aux->ataques>0){
+					resultado=resultado-4;
+				}
+		}
+		aux=aux->prox;
+	}while(aux->codigo!=0);
+	double k=0;
+	do{
+		if(posAtual.tab[JH->linhaDe][JH->colunaDe]->codigo==2 || posAtual.tab[JH->linhaDe][JH->colunaDe]->codigo==3 || posAtual.tab[JH->linhaDe][JH->colunaDe]->codigo==4){
+			k=k+0.1;
+		}
+		JH=JH->prox;
+	}while(JH->linhaDe!=-1);
+	resultado=resultado-k;
+	LiberaListaJogada(JH);
+	k=0;
+	posAtual.jogVez=-1*posAtual.jogVez;
+	JH=CalculaMovimentosPossiveis(posAtual);
+	aux=posAtual.brancas;
+	do{
+		switch (aux->codigo){
+			case 1:
+				resultado=resultado-0.5*(aux->linha+1);
+				if(aux->ataques>0){
+					resultado=resultado+0.4;
+				}
+				break;
+			case 2:
+				resultado=resultado-2;
+				if(aux->ataques>0){
+					resultado=resultado+1.5;
+				}
+				break;
+			case 3:
+				resultado=resultado-3;
+				if(aux->ataques>0){
+					resultado=resultado+2;
+				}
+				break;
+			case 4:
+				resultado=resultado-4;
+				if(aux->ataques>0){
+					resultado=resultado+3;
+				}
+				break;
+			case 5:
+				resultado=resultado-5;
+				if(aux->ataques>0){
+					resultado=resultado+4;
+				}
+				break;
+			case 6:
+				resultado=resultado-100;
+				if(aux->ataques>0){
+					resultado=resultado+4;
+				}
+		}
+		aux=aux->prox;
+	}while(aux->codigo!=0);
+	k=0;
+	do{
+		if(posAtual.tab[JH->linhaDe][JH->colunaDe]->codigo==-2 || posAtual.tab[JH->linhaDe][JH->colunaDe]->codigo==-3 || posAtual.tab[JH->linhaDe][JH->colunaDe]->codigo==-4){
+					k=k+0.1;
+		}
+		JH=JH->prox;
+	}while(JH->linhaDe!=-1);
+	resultado=resultado+k;
+	LiberaListaJogada(JH);
+	posAtual.jogVez=A;
+	return resultado;
+}
+void Desenha(struct Posicao PosAtual)
+{
+    printf("\n\n\n\n\n");
+    int i, j;
+    for (i = 7; i > -1; i--)
+    {
+        printf("\t\t\t\t\t\t%d ", i);
+        for (j = 0; j < 8; j++)
+        {
+            if (PosAtual.tab[i][j] == NULL)
+            {
+                printf("|  ");
+            }
+            else
+            {
+                if (PosAtual.tab[i][j]->codigo < 0)
+                {
+                    printf("|");
+                }
+                else if (PosAtual.tab[i][j]->codigo > 0)
+                {
+                    printf("| ");
+                }
+                //AjustaCor(PosAtual.tab[i][j]->codigo);
+                printf("%d", PosAtual.tab[i][j]->codigo);
+                //ResetCor();
+            }
+        }
+        printf("|\n\t\t\t\t\t\t  -------------------------\n");
+    }
+    printf("\t\t\t\t\t\t    0  1  2  3  4  5  6  7\n");
+    printf("%lf", AvaliaPosicao(PosAtual));
+}
 // 1 é branco
 // -1 é preto
 int ExecutaJogada(struct Posicao *posAtual, struct Jogada* jogada){
