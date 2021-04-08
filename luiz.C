@@ -856,10 +856,33 @@ void Desenha(struct Posicao PosAtual)
     printf("\t\t\t\t\t\t    0  1  2  3  4  5  6  7\n");
     printf("%lf", AvaliaPosicao(PosAtual));
 }
+
+void PromovePeao(struct Posicao *posAtual, struct Jogada* jogada){
+    int codigo = posAtual->tab[jogada->linhaPara][jogada->colunaPara]->codigo;
+    int linha = jogada->linhaPara;
+    struct Peca* aux;
+    if(codigo == 1 && linha == 7){
+        aux = posAtual->brancas->prox;
+        while(aux != posAtual->brancas && (aux->linha != jogada->linhaPara || aux->coluna != jogada->colunaPara)){
+            aux = aux->prox;
+        }
+        aux->codigo = 5;
+        posAtual->tab[jogada->linhaPara][jogada->colunaPara]->codigo = 5;
+    }
+    else if (codigo == -1 && linha == 0){
+        aux = posAtual->pretas->prox;
+        while(aux != posAtual->pretas && (aux->linha != jogada->linhaPara || aux->coluna != jogada->colunaPara)){
+            aux = aux->prox;
+        }
+        aux->codigo = -5;
+        posAtual->tab[jogada->linhaPara][jogada->colunaPara]->codigo = -5;
+    }
+}
+
 // 1 é branco
 // -1 é preto
 int ExecutaJogada(struct Posicao *posAtual, struct Jogada* jogada){
-int x=0;
+    int x=0;
     if (posAtual->tab[jogada->linhaPara][jogada->colunaPara] != NULL){
         if(abs(posAtual->tab[jogada->linhaPara][jogada->colunaPara]->codigo) == 6) {
             x=1;
@@ -873,7 +896,6 @@ int x=0;
             RemovePeca(posAtual->brancas, jogada->linhaPara, jogada->colunaPara);
             posAtual->qtdBrancas--;
         }
-
     }
 
     posAtual->tab[jogada->linhaPara][jogada->colunaPara] = posAtual->tab[jogada->linhaDe][jogada->colunaDe];
@@ -881,6 +903,8 @@ int x=0;
     posAtual->tab[jogada->linhaPara][jogada->colunaPara]->coluna = jogada->colunaPara;
     posAtual->tab[jogada->linhaDe][jogada->colunaDe] = NULL;
     posAtual->jogVez=-1* posAtual-> jogVez;
+
+    PromovePeao(posAtual, jogada);
     return x;
 }
 
@@ -941,8 +965,6 @@ void Jogo(struct Posicao posAtual)
     do {
         printf("Jogador da vez: %s(%d)\n", posAtual.jogVez == 1 ? "branco" : "preto", posAtual.jogVez);
         jogadasPossiveis = CalculaMovimentosPossiveis(posAtual);
-
-        Desenha(posAtual);
 
         do{
             printf("\nQual peça você quer mover?\n");
