@@ -965,7 +965,7 @@ void Jogo(struct Posicao posAtual)
     do {
         printf("Jogador da vez: %s(%d)\n", posAtual.jogVez == 1 ? "branco" : "preto", posAtual.jogVez);
         jogadasPossiveis = CalculaMovimentosPossiveis(posAtual);
-
+			Desenha(posAtual);
         do{
             printf("\nQual peça você quer mover?\n");
             PegaEscolha(&jogada->linhaDe, &jogada->colunaDe);
