@@ -80,18 +80,6 @@ struct Peca* InsereInicioPeca(struct Peca* sentinela, int codigo, int linha, int
     novo->coluna=coluna;
     novo->codigo=codigo;
     novo->ataques=ataques;
-    /*
-    if(sentinela==NULL)
-    {
-        sentinela = (struct Peca*) malloc(sizeof(struct Peca));
-        sentinela->codigo = 0;
-        sentinela->prox = novo;
-        sentinela->ant = novo;
-        novo->prox=sentinela;
-        novo->ant=sentinela;
-        return novo;
-    }
-    */
     novo->prox=sentinela->prox;
     novo->ant=sentinela;
     sentinela->prox->ant=novo;
@@ -106,19 +94,6 @@ struct Jogada* InsereInicioJogada(struct Jogada* sentinela, int linhaDe, int col
     novo->colunaDe=colunaDe;
     novo->linhaPara=linhaPara;
     novo->colunaPara=colunaPara;
-    /*
-    if(sentinela==NULL)
-    {
-        sentinela = (struct Jogada*) malloc(sizeof(struct Jogada));
-        sentinela->colunaDe = -1;
-        sentinela->linhaDe = -1;
-        sentinela->prox = novo;
-        sentinela->ant = novo;
-        novo->prox=sentinela;
-        novo->ant=sentinela;
-        return novo;
-    }
-    */
     novo->prox=sentinela->prox;
     novo->ant=sentinela;
     sentinela->prox->ant=novo;
@@ -137,6 +112,25 @@ void RemovePeca(struct Peca* lista, int linha, int coluna)
         aux->ant->prox = aux->prox;
         free(aux);
     }
+}
+
+void LiberaMemoria(struct Posicao posDel) {
+  struct Peca *atual = posDel.brancas;
+  struct Peca *prox;
+  while (atual != NULL) {
+    prox = atual->prox;
+    free(atual);
+    atual = prox;
+  }
+
+  atual = posDel.pretas;
+  while (atual != NULL) {
+    prox = atual->prox;
+    free(atual);
+    atual = prox;
+  }
+
+  //posDel = NULL;
 }
 
 struct Posicao IniciaTabuleiro()
@@ -182,10 +176,34 @@ struct Posicao IniciaTabuleiro()
     tabuleiro.tab[7][3]=InsereInicioPeca(tabuleiro.pretas, -5, 7, 3, 0);
 
     return tabuleiro;
-
 }
 
-//Inicio das funções de jogadas de peças
+struct Posicao CopiaPosicao(struct Posicao posOrig) {
+	size_t i, j;
+  struct Posicao posCpy;
+  posCpy.qtdBrancas = posOrig.qtdBrancas;
+  posCpy.qtdPretas = posOrig.qtdPretas;
+  posCpy.jogVez = posOrig.jogVez;
+  posCpy.brancas=CriaListaPeca();
+   posCpy.pretas=CriaListaPeca();
+  for (i = 0; i < 8; i++) {
+    for (j = 0; j < 8; j++) {
+     if (posOrig.tab[i][j]==NULL){
+     	posCpy.tab[i][j]=NULL;
+	 } else{
+	 	if (posOrig.tab[i][j]->codigo<0){
+	 			 	posCpy.tab[i][j]=InsereInicioPeca(posCpy.pretas, posOrig.tab[i][j]->codigo, posOrig.tab[i][j]->linha, posOrig.tab[i][j]->coluna, posOrig.tab[i][j]->ataques);
+		 } else if(posOrig.tab[i][j]->codigo>0){
+		 				 	posCpy.tab[i][j]=InsereInicioPeca(posCpy.brancas, posOrig.tab[i][j]->codigo, posOrig.tab[i][j]->linha, posOrig.tab[i][j]->coluna, posOrig.tab[i][j]->ataques);
+		 }
+	 }
+    }
+  }
+
+  return posCpy;
+}
+
+//Inicio das funÃ§Ãµes de jogadas de peÃ§as
 struct Jogada* peao(struct Jogada* movimentos, struct Peca* p, struct Peca* tabuleiro[8][8])
 {
     if((p->linha+p->codigo)>=0 && (p->linha+p->codigo)<=7)
@@ -330,7 +348,7 @@ struct Jogada* cavalo(struct Jogada* movimentos, struct Peca* p, struct Peca* ta
 struct Jogada* bispo(struct Jogada* movimentos, struct Peca* p, struct Peca* tabuleiro[8][8])
 {
     /*
-    a funçao recebe como parametro a lista de jogadas, o ponteiro da peça e o tabuleiro que é um ponteiro para todas as peças que ainda estao no jogo.
+    a funÃ§ao recebe como parametro a lista de jogadas, o ponteiro da peÃ§a e o tabuleiro que Ã© um ponteiro para todas as peÃ§as que ainda estao no jogo.
     */
     int k=0;
     do
@@ -341,24 +359,24 @@ struct Jogada* bispo(struct Jogada* movimentos, struct Peca* p, struct Peca* tab
             if(tabuleiro[p->linha+k][p->coluna-k]!=NULL && tabuleiro[p->linha+k][p->coluna-k]->codigo*p->codigo<0)
             {
                 /*
-                se a linha e a coluna da peça nao ultrapassarem 0 e 8 depois de somados com o contador, precisamos verificar se o ponteiro do tabuleiro na posicao linha+k coluna-k
-                        aponta para uma peça ou para nulo, caso aponte para uma peça, temos que verificar se a multiplicaçao da negativo pois isto significa que as duas peças sao de sinais diferentes,
+                se a linha e a coluna da peÃ§a nao ultrapassarem 0 e 8 depois de somados com o contador, precisamos verificar se o ponteiro do tabuleiro na posicao linha+k coluna-k
+                        aponta para uma peÃ§a ou para nulo, caso aponte para uma peÃ§a, temos que verificar se a multiplicaÃ§ao da negativo pois isto significa que as duas peÃ§as sao de sinais diferentes,
                         entao podemos realizar a captura
                 */
                 tabuleiro[p->linha+k][p->coluna-k]->ataques++;/*
-        se a açao for de captura temos que sinalizar que a peça adversaria esta sofrendo 1 ataque*/
+        se a aÃ§ao for de captura temos que sinalizar que a peÃ§a adversaria esta sofrendo 1 ataque*/
                 movimentos=InsereInicioJogada(movimentos,p->linha,p->coluna,p->linha+k,p->coluna-k);
             }
             else if(tabuleiro[p->linha+k][p->coluna-k]==NULL)
             {
                 movimentos=InsereInicioJogada(movimentos,p->linha, p->coluna,p->linha+k,p->coluna-k);/*
         Se o tabuleiro na posicao linha+k coluna-k estiver apontando para null significa que a casa esta livre entao nao eh uma jogada de captura, nao sinalizamos ataque para
-                nenhuma peça, mas nos 2 casos temos que colocar as jogadas na lista de movimentos possiveis*/
+                nenhuma peÃ§a, mas nos 2 casos temos que colocar as jogadas na lista de movimentos possiveis*/
             }
         }
     }
     while(p->linha+k<8 && p->coluna-k>=0 && tabuleiro[p->linha+k][p->coluna-k]==NULL);
-    /*ja fiz a diagonal superior esquerda, o resto eh a mesma estrutura, a torre é bem semelhante ao bispo*/
+    /*ja fiz a diagonal superior esquerda, o resto eh a mesma estrutura, a torre Ã© bem semelhante ao bispo*/
 
     //Diagonal superior direita
     k=0;
@@ -613,7 +631,7 @@ struct Jogada* rei(struct Jogada* movimentos, struct Peca* p, struct Peca* tabul
         }
     return movimentos;
 }
-//Fim das funções de jogada de peças
+//Fim das funÃ§Ãµes de jogada de peÃ§as
 
 void AjustaCor(int peca)
 {
@@ -662,13 +680,13 @@ struct Jogada *CalculaMovimentosPossiveis(struct Posicao PosAtual)
     }
     while(aux!=PosAtual.pretas);
 
-    //1 é branco
+    //1 Ã© branco
     if(PosAtual.jogVez==1)
     {
         aux=PosAtual.brancas;
     }
     else
-    {//-1 é preto
+    {//-1 Ã© preto
         aux=PosAtual.pretas;
     }
 
@@ -879,8 +897,8 @@ void PromovePeao(struct Posicao *posAtual, struct Jogada* jogada){
     }
 }
 
-// 1 é branco
-// -1 é preto
+// 1 Ã© branco
+// -1 Ã© preto
 int ExecutaJogada(struct Posicao *posAtual, struct Jogada* jogada){
     int x=0;
     if (posAtual->tab[jogada->linhaPara][jogada->colunaPara] != NULL){
@@ -912,7 +930,7 @@ bool VerificaJogada(struct Jogada* jogada, struct Jogada* jogadasPossiveis, stru
     if(posAtual.tab[jogada->linhaDe][jogada->colunaDe] == NULL ||
         ((posAtual.tab[jogada->linhaDe][jogada->colunaDe]->codigo > 0 && posAtual.jogVez < 0) ||
          (posAtual.tab[jogada->linhaDe][jogada->colunaDe]->codigo < 0 && posAtual.jogVez > 0))) {
-        printf("\nVocê não tem peça nesta posição!");
+        printf("\nVoce nao tem peça nesta posiçao!");
         return false;
     }
 
@@ -936,7 +954,7 @@ bool VerificaJogada(struct Jogada* jogada, struct Jogada* jogadasPossiveis, stru
 }
 
 void PegaEscolha(int *linha, int* coluna) {
-    //Funcao para garatir que a escolha está dentro do tabuleiro
+    //Funcao para garatir que a escolha estÃ¡ dentro do tabuleiro
     printf("Linha: ");
     scanf("%d", linha);
     fflush(stdin);
@@ -944,7 +962,7 @@ void PegaEscolha(int *linha, int* coluna) {
     scanf("%d", coluna);
     while (*linha < 0 || *linha > 8 || *coluna < 0|| *coluna > 8)
     {
-        printf("Digite outra posição:\n");
+        printf("Digite outra posiçao:\n");
         fflush(stdin);
         printf("Linha: ");
         scanf("%d", linha);
@@ -967,9 +985,9 @@ void Jogo(struct Posicao posAtual)
         jogadasPossiveis = CalculaMovimentosPossiveis(posAtual);
 			Desenha(posAtual);
         do{
-            printf("\nQual peça você quer mover?\n");
+            printf("\nQual peça voce quer mover?\n");
             PegaEscolha(&jogada->linhaDe, &jogada->colunaDe);
-            printf("\nPara qual posicao você quer mover?\n");
+            printf("\nPara qual posicao voce quer mover?\n");
             PegaEscolha(&jogada->linhaPara, &jogada->colunaPara);
         } while(!VerificaJogada(jogada, jogadasPossiveis, posAtual));
 
@@ -980,10 +998,11 @@ void Jogo(struct Posicao posAtual)
 	Desenha(posAtual);
     //Desinverte a vez
     posAtual.jogVez = -1 * posAtual.jogVez;
+    LiberaMemoria(posAtual);
     if(posAtual.jogVez==1){
-      printf("\nVitória do jogador de Brancas!");
+      printf("\nVitoria do jogador de Brancas!");
     } else{
-      printf("\nVitória do jogador de Pretas!");
+      printf("\nVitoria do jogador de Pretas!");
     }
     fflush(stdin);
 }
