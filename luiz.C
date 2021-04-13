@@ -31,13 +31,20 @@ struct  Jogada
     struct Jogada *prox, *ant;
 };
 
-struct Peca* LiberaListaPeca(struct Peca* lista){
-    struct Peca* aux = lista;
-    lista->ant->prox = NULL;
+struct Peca* LiberaMemoria(struct Posicao posDel){
+    struct Peca* aux = posDel.pretas;
+    posDel.pretas->ant->prox = NULL;
     while(aux != NULL){
-        lista= lista->prox;
+        posDel.pretas= posDel.pretas->prox;
         free(aux);
-        aux = lista;
+        aux = posDel.pretas;
+    }
+    aux = posDel.brancas;
+    posDel.brancas->ant->prox = NULL;
+    while(aux != NULL){
+        posDel.brancas= posDel.brancas->prox;
+        free(aux);
+        aux = posDel.brancas;
     }
     return NULL;
 };
@@ -112,25 +119,6 @@ void RemovePeca(struct Peca* lista, int linha, int coluna)
         aux->ant->prox = aux->prox;
         free(aux);
     }
-}
-
-void LiberaMemoria(struct Posicao posDel) {
-  struct Peca *atual = posDel.brancas;
-  struct Peca *prox;
-  while (atual != NULL) {
-    prox = atual->prox;
-    free(atual);
-    atual = prox;
-  }
-
-  atual = posDel.pretas;
-  while (atual != NULL) {
-    prox = atual->prox;
-    free(atual);
-    atual = prox;
-  }
-
-  //posDel = NULL;
 }
 
 struct Posicao IniciaTabuleiro()
@@ -1011,6 +999,5 @@ int main()
 {
     struct Posicao posAtual=IniciaTabuleiro();
     Jogo(posAtual);
-
     return 0;
 }
